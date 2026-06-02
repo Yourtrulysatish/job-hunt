@@ -10,32 +10,78 @@
     * { box-sizing: border-box; }
     body { background: #0d1117; color: #e6edf3; font-family: 'SF Mono', 'Fira Code', monospace; }
     .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; }
-    .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
-    .score-high { color: #3fb950; }
-    .score-mid  { color: #d29922; }
-    .score-low  { color: #f85149; }
+    .card:hover { border-color: #484f58; }
+    input, select { background: #0d1117; border: 1px solid #30363d; color: #e6edf3; border-radius: 6px; padding: 6px 10px; font-size: 13px; }
+    input:focus, select:focus { outline: 1px solid #1f6feb; }
+    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #0d1117; } ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+
+    /* Tabs */
+    .tab-btn { color: #8b949e; border: 1px solid transparent; cursor: pointer; transition: all .15s; }
+    .tab-btn.active { color: #e6edf3; border-color: #30363d; background: #21262d; }
+    .tab-btn:hover:not(.active) { color: #e6edf3; }
+
+    /* Status pills */
     .status-pill { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
     .pill-Evaluated   { background: #1f6feb33; color: #58a6ff; }
     .pill-Applied     { background: #1a7f3733; color: #3fb950; }
     .pill-Interview   { background: #9e6a0333; color: #d29922; }
     .pill-Offer       { background: #2ea04333; color: #56d364; }
     .pill-Rejected    { background: #da363333; color: #f85149; }
-    .pill-Discarded   { background: #21262d; color: #8b949e; }
-    .pill-SKIP        { background: #21262d; color: #484f58; }
+    .pill-Discarded   { background: #21262d;   color: #8b949e; }
+    .pill-SKIP        { background: #21262d;   color: #484f58; }
     .pill-Responded   { background: #31366633; color: #8b949e; }
-    input, select { background: #0d1117; border: 1px solid #30363d; color: #e6edf3; border-radius: 6px; padding: 6px 10px; font-size: 13px; }
-    input:focus, select:focus { outline: 1px solid #1f6feb; }
-    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #0d1117; } ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+
+    /* Fit labels */
+    .fit-strong  { background: #0d4a1a; color: #56d364; }
+    .fit-good    { background: #3a2e0a; color: #d29922; }
+    .fit-partial { background: #3a1e0a; color: #ffa657; }
+    .fit-weak    { background: #21262d; color: #8b949e; }
+
+    /* Portal pills */
+    .portal-pill { font-size: 10px; padding: 1px 7px; border-radius: 10px; font-weight: 600; display: inline-block; }
+    .portal-greenhouse      { background: #0d4a1a; color: #56d364; }
+    .portal-ashby           { background: #1a2d5a; color: #79b8ff; }
+    .portal-lever           { background: #3a1a4a; color: #d2a8ff; }
+    .portal-workday         { background: #4a2a0a; color: #ffa657; }
+    .portal-smartrecruiters { background: #1a3a3a; color: #56d4d4; }
+    .portal-remotive        { background: #0d3a2a; color: #56d4a0; }
+    .portal-remoteok        { background: #1a3a1a; color: #a0e87a; }
+    .portal-himalayas       { background: #2a1a3a; color: #c8a8ff; }
+    .portal-rss             { background: #3a2a0a; color: #ffcc66; }
+    .portal-linkedin        { background: #0a1e3a; color: #4a9eff; }
+    .portal-wellfound       { background: #2a0a1a; color: #ff7eb3; }
+
+    /* Overdue */
     .overdue-alert { border-left: 3px solid #f85149; }
+
+    /* Score */
+    .score-high { color: #3fb950; }
+    .score-mid  { color: #d29922; }
+    .score-low  { color: #f85149; }
+
+    /* Fit stars */
+    .stars { letter-spacing: -1px; }
+
+    /* Recommendation card accent */
+    .rec-card { border-left: 3px solid #3fb950; }
+    .rec-card-good { border-left-color: #d29922; }
   </style>
 </head>
 <body class="min-h-screen">
 
 <!-- Header -->
-<header class="border-b border-gray-800 px-6 py-4 flex items-center justify-between">
-  <div class="flex items-center gap-3">
-    <span class="text-xl font-bold text-white">Job Hunt</span>
-    <span class="text-gray-500 text-sm">dashboard</span>
+<header class="border-b border-gray-800 px-6 py-4 flex items-center justify-between sticky top-0 z-10" style="background:#0d1117">
+  <div class="flex items-center gap-4">
+    <span class="text-lg font-bold text-white">Job Hunt</span>
+    <nav class="flex gap-1">
+      <button onclick="showTab('dashboard')" id="tab-dashboard" class="tab-btn active text-xs px-3 py-1 rounded">Dashboard</button>
+      <button onclick="showTab('inbox')"     id="tab-inbox"     class="tab-btn text-xs px-3 py-1 rounded">
+        Inbox <span id="inbox-badge" class="text-gray-500 text-xs ml-1"></span>
+      </button>
+      <button onclick="showTab('recs')"      id="tab-recs"      class="tab-btn text-xs px-3 py-1 rounded">
+        ⭐ Recommendations <span id="recs-badge" class="text-gray-500 text-xs ml-1"></span>
+      </button>
+    </nav>
   </div>
   <div class="flex items-center gap-3">
     <span id="last-updated" class="text-xs text-gray-600"></span>
@@ -43,16 +89,16 @@
   </div>
 </header>
 
-<div class="max-w-7xl mx-auto px-6 py-6 space-y-6">
+<!-- ══════════════ DASHBOARD ══════════════ -->
+<div id="view-dashboard" class="max-w-7xl mx-auto px-6 py-6 space-y-6">
 
-  <!-- Stats row -->
-  <div id="stats-row" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
     <div class="card p-4 text-center">
-      <div id="stat-total" class="text-3xl font-bold text-white">—</div>
-      <div class="text-xs text-gray-500 mt-1">Total Applications</div>
+      <div id="stat-total"      class="text-3xl font-bold text-white">—</div>
+      <div class="text-xs text-gray-500 mt-1">Applications</div>
     </div>
     <div class="card p-4 text-center">
-      <div id="stat-avg-score" class="text-3xl font-bold text-yellow-400">—</div>
+      <div id="stat-avg-score"  class="text-3xl font-bold text-yellow-400">—</div>
       <div class="text-xs text-gray-500 mt-1">Avg Score</div>
     </div>
     <div class="card p-4 text-center">
@@ -60,15 +106,14 @@
       <div class="text-xs text-gray-500 mt-1">Interviews</div>
     </div>
     <div class="card p-4 text-center">
-      <div id="stat-offers" class="text-3xl font-bold text-green-400">—</div>
+      <div id="stat-offers"     class="text-3xl font-bold text-green-400">—</div>
       <div class="text-xs text-gray-500 mt-1">Offers</div>
     </div>
   </div>
 
-  <!-- Overdue follow-ups banner -->
   <div id="followup-banner" class="hidden card p-4 overdue-alert">
     <div class="flex items-start gap-3">
-      <span class="text-red-400 text-lg">!</span>
+      <span class="text-red-400">!</span>
       <div>
         <div class="text-sm font-semibold text-red-400" id="followup-count"></div>
         <div id="followup-list" class="mt-2 space-y-1"></div>
@@ -76,13 +121,10 @@
     </div>
   </div>
 
-  <!-- Main content: applications + charts -->
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-    <!-- Applications list (2/3) -->
     <div class="lg:col-span-2 card p-4">
       <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
-        <h2 class="text-sm font-semibold text-gray-300">Pipeline</h2>
+        <h2 class="text-sm font-semibold text-gray-300">Evaluated Applications</h2>
         <div class="flex gap-2 flex-wrap">
           <input id="filter-company" placeholder="Company…" class="w-32 text-xs" oninput="applyFilters()" />
           <select id="filter-status" class="text-xs" onchange="applyFilters()">
@@ -92,15 +134,13 @@
           </select>
           <select id="filter-score" class="text-xs" onchange="applyFilters()">
             <option value="">Any score</option>
-            <option value="4.5">4.5+</option>
-            <option value="4.0">4.0+</option>
-            <option value="3.5">3.5+</option>
+            <option value="4.5">4.5+</option><option value="4.0">4.0+</option><option value="3.5">3.5+</option>
           </select>
         </div>
       </div>
-      <div class="overflow-auto max-h-[560px]">
+      <div class="overflow-auto max-h-[520px]">
         <table class="w-full text-xs">
-          <thead class="text-gray-500 sticky top-0 bg-gray-900">
+          <thead class="text-gray-500 sticky top-0" style="background:#0d1117">
             <tr>
               <th class="text-left py-1 px-2">#</th>
               <th class="text-left py-1 px-2">Company</th>
@@ -112,56 +152,111 @@
           </thead>
           <tbody id="apps-table" class="divide-y divide-gray-800"></tbody>
         </table>
-        <div id="apps-empty" class="text-center text-gray-600 py-8 hidden">No applications yet.</div>
+        <div id="apps-empty" class="hidden text-center text-gray-600 py-10 text-xs">
+          No evaluated applications yet.<br>
+          Open Claude Code in this directory, paste a job URL from the Inbox.
+        </div>
       </div>
     </div>
 
-    <!-- Right column: charts + skills gap -->
     <div class="space-y-4">
-
-      <!-- Status chart -->
       <div class="card p-4">
         <h2 class="text-xs font-semibold text-gray-400 mb-3">By Status</h2>
         <canvas id="status-chart" height="180"></canvas>
       </div>
-
-      <!-- Score distribution -->
       <div class="card p-4">
         <h2 class="text-xs font-semibold text-gray-400 mb-3">Score Distribution</h2>
-        <canvas id="score-chart" height="120"></canvas>
+        <canvas id="score-chart" height="110"></canvas>
       </div>
-
-      <!-- Skills gap -->
       <div class="card p-4">
         <h2 class="text-xs font-semibold text-gray-400 mb-3">Skills Gap</h2>
         <div id="skills-list" class="space-y-2 text-xs"></div>
         <div id="skills-empty" class="text-gray-600 text-xs">No data yet — evaluate some jobs first.</div>
       </div>
-
     </div>
   </div>
+</div>
 
+<!-- ══════════════ INBOX ══════════════ -->
+<div id="view-inbox" class="hidden max-w-7xl mx-auto px-6 py-6 space-y-4">
+
+  <div class="card p-4 flex flex-wrap items-center gap-3">
+    <input id="pipe-search"  placeholder="Search company or role…" class="flex-1 min-w-[180px] text-xs" oninput="applyInboxFilters()" />
+    <select id="pipe-fit"    class="text-xs" onchange="applyInboxFilters()">
+      <option value="">All fits</option>
+      <option value="4">Strong Match (4+)</option>
+      <option value="3">Good Match (3+)</option>
+      <option value="2">Partial Match (2+)</option>
+    </select>
+    <select id="pipe-portal" class="text-xs" onchange="applyInboxFilters()">
+      <option value="">All sources</option>
+      <option value="greenhouse">Greenhouse</option><option value="ashby">Ashby</option>
+      <option value="lever">Lever</option><option value="remoteok">RemoteOK</option>
+      <option value="remotive">Remotive</option><option value="himalayas">Himalayas</option>
+      <option value="linkedin">LinkedIn</option><option value="wellfound">Wellfound</option>
+      <option value="rss">RSS</option>
+    </select>
+    <select id="pipe-company" class="text-xs" onchange="applyInboxFilters()">
+      <option value="">All companies</option>
+    </select>
+    <label class="flex items-center gap-1 text-xs text-gray-400 cursor-pointer">
+      <input type="checkbox" id="pipe-hide-weak" onchange="applyInboxFilters()" class="w-3 h-3" />
+      Hide weak matches
+    </label>
+    <span id="pipe-count" class="text-xs text-gray-500 ml-auto"></span>
+  </div>
+
+  <div id="pipe-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"></div>
+  <div id="pipe-empty" class="hidden text-center text-gray-600 py-16 text-sm">
+    No jobs found.<br><span class="text-xs">Run <code class="text-blue-400">npm run scan</code></span>
+  </div>
+</div>
+
+<!-- ══════════════ RECOMMENDATIONS ══════════════ -->
+<div id="view-recs" class="hidden max-w-4xl mx-auto px-6 py-6 space-y-4">
+
+  <div class="card p-4 space-y-1">
+    <h2 class="text-sm font-semibold text-white">Top Recommendations for You</h2>
+    <p class="text-xs text-gray-500">Jobs scored ≥ 3.5 based on your profile — partnership/BD/growth, Web3/AI domain, remote, senior level.</p>
+  </div>
+
+  <div id="recs-list" class="space-y-3"></div>
+  <div id="recs-empty" class="hidden card p-6 text-center text-gray-600 text-sm">
+    No strong matches yet. Run <code class="text-blue-400">npm run scan</code> to pull fresh listings.
+  </div>
 </div>
 
 <script>
-let allApps = [];
-let statusChart = null, scoreChart = null;
+let allApps = [], allPipelineJobs = [], statusChart = null, scoreChart = null;
+
+// ── Tabs ──────────────────────────────────────────────────────────────
+
+function showTab(tab) {
+  ['dashboard','inbox','recs'].forEach(t => {
+    document.getElementById('view-' + t).classList.toggle('hidden', t !== tab);
+    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+  });
+  if (tab === 'inbox' && !allPipelineJobs.length) loadPipeline();
+  if (tab === 'recs') loadRecs();
+}
+
+// ── Load all ──────────────────────────────────────────────────────────
 
 async function loadAll() {
-  await Promise.all([loadStats(), loadApps(), loadFollowups(), loadSkillsGap()]);
+  await Promise.all([loadStats(), loadApps(), loadFollowups(), loadSkillsGap(), loadPipeline()]);
   document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString();
 }
+
+// ── Dashboard ─────────────────────────────────────────────────────────
 
 async function loadStats() {
   const r = await fetch('/api/stats').catch(() => null);
   if (!r?.ok) return;
   const d = await r.json();
-  document.getElementById('stat-total').textContent = d.total ?? 0;
-  document.getElementById('stat-avg-score').textContent = d.avgScore ? d.avgScore.toFixed(1) : '—';
-  const interviews = d.byStatus?.find(s => s.status === 'Interview')?.count ?? 0;
-  const offers = d.byStatus?.find(s => s.status === 'Offer')?.count ?? 0;
-  document.getElementById('stat-interviews').textContent = interviews;
-  document.getElementById('stat-offers').textContent = offers;
+  document.getElementById('stat-total').textContent       = d.total ?? 0;
+  document.getElementById('stat-avg-score').textContent   = d.avgScore ? d.avgScore.toFixed(1) : '—';
+  document.getElementById('stat-interviews').textContent  = d.byStatus?.find(s => s.status === 'Interview')?.count ?? 0;
+  document.getElementById('stat-offers').textContent      = d.byStatus?.find(s => s.status === 'Offer')?.count ?? 0;
   renderStatusChart(d.byStatus ?? []);
 }
 
@@ -182,7 +277,7 @@ async function loadFollowups() {
   banner.classList.remove('hidden');
   document.getElementById('followup-count').textContent = `${data.length} overdue follow-up${data.length > 1 ? 's' : ''}`;
   document.getElementById('followup-list').innerHTML = data.map(f =>
-    `<div class="text-xs text-gray-400">${f.company} — ${f.role} <span class="text-red-500">(${f.type}, due ${f.due_date})</span></div>`
+    `<div class="text-xs text-gray-400">${esc(f.company)} — ${esc(f.role)} <span class="text-red-500">(${f.type}, due ${f.due_date})</span></div>`
   ).join('');
 }
 
@@ -196,113 +291,219 @@ async function loadSkillsGap() {
   empty.style.display = 'none';
   list.innerHTML = data.map(s => {
     const pct = Math.round(s.match_rate * 100);
-    const color = pct >= 75 ? '#3fb950' : pct >= 40 ? '#d29922' : '#f85149';
+    const col = pct >= 75 ? '#3fb950' : pct >= 40 ? '#d29922' : '#f85149';
     return `<div>
-      <div class="flex justify-between text-gray-400">
-        <span>${s.skill}</span>
-        <span style="color:${color}">${pct}% match</span>
-      </div>
-      <div class="w-full h-1 bg-gray-800 rounded mt-1">
-        <div class="h-1 rounded" style="width:${pct}%;background:${color}"></div>
-      </div>
+      <div class="flex justify-between text-gray-400"><span>${esc(s.skill)}</span><span style="color:${col}">${pct}% match</span></div>
+      <div class="w-full h-1 bg-gray-800 rounded mt-1"><div class="h-1 rounded" style="width:${pct}%;background:${col}"></div></div>
     </div>`;
   }).join('');
 }
 
 function applyFilters() {
-  const company = document.getElementById('filter-company').value.toLowerCase();
-  const status = document.getElementById('filter-status').value;
-  const minScore = parseFloat(document.getElementById('filter-score').value || '0');
-
-  const filtered = allApps.filter(a =>
-    (!company || a.company.toLowerCase().includes(company)) &&
-    (!status || a.status === status) &&
-    (!minScore || (a.score ?? 0) >= minScore)
-  );
-
-  renderTable(filtered);
+  const co = document.getElementById('filter-company').value.toLowerCase();
+  const st = document.getElementById('filter-status').value;
+  const ms = parseFloat(document.getElementById('filter-score').value || '0');
+  renderAppsTable(allApps.filter(a =>
+    (!co || a.company.toLowerCase().includes(co)) &&
+    (!st || a.status === st) &&
+    (!ms || (a.score ?? 0) >= ms)
+  ));
 }
 
-function renderTable(apps) {
+function renderAppsTable(apps) {
   const tbody = document.getElementById('apps-table');
   const empty = document.getElementById('apps-empty');
-
-  if (!apps.length) {
-    tbody.innerHTML = '';
-    empty.classList.remove('hidden');
-    return;
-  }
+  if (!apps.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
   empty.classList.add('hidden');
-
   tbody.innerHTML = apps.map(a => {
-    const scoreClass = a.score >= 4.5 ? 'score-high' : a.score >= 3.5 ? 'score-mid' : 'score-low';
-    const pillClass = 'pill-' + (a.status || 'Evaluated').replace(/\s/g, '');
-    const reportLink = a.report_path
+    const sc   = a.score >= 4.5 ? 'score-high' : a.score >= 3.5 ? 'score-mid' : 'score-low';
+    const pill = 'pill-' + (a.status || 'Evaluated').replace(/\s/g, '');
+    const link = a.report_path
       ? `<a href="/api/report/${encodeURIComponent(a.report_path)}" target="_blank" class="text-blue-500 hover:underline">${a.num}</a>`
       : `<span class="text-gray-600">${a.num}</span>`;
-
     return `<tr class="hover:bg-gray-800/30 transition-colors">
-      <td class="py-2 px-2 text-gray-500">${reportLink}</td>
-      <td class="py-2 px-2 font-medium">${escHtml(a.company)}</td>
-      <td class="py-2 px-2 text-gray-300 max-w-[180px] truncate" title="${escHtml(a.role)}">${escHtml(a.role)}</td>
-      <td class="py-2 px-2 ${scoreClass} font-mono">${a.score ? a.score.toFixed(1) : '—'}</td>
-      <td class="py-2 px-2"><span class="status-pill ${pillClass}">${a.status}</span></td>
+      <td class="py-2 px-2 text-gray-500">${link}</td>
+      <td class="py-2 px-2 font-medium">${esc(a.company)}</td>
+      <td class="py-2 px-2 text-gray-300 max-w-[180px] truncate" title="${esc(a.role)}">${esc(a.role)}</td>
+      <td class="py-2 px-2 ${sc} font-mono">${a.score ? a.score.toFixed(1) : '—'}</td>
+      <td class="py-2 px-2"><span class="status-pill ${pill}">${a.status}</span></td>
       <td class="py-2 px-2 text-gray-600">${a.date}</td>
     </tr>`;
   }).join('');
 }
 
 function renderStatusChart(byStatus) {
-  const ctx = document.getElementById('status-chart');
-  const labels = byStatus.map(s => s.status);
-  const values = byStatus.map(s => s.count);
-  const colors = ['#58a6ff','#3fb950','#d29922','#56d364','#f85149','#484f58','#8b949e','#bc8cff'];
-
   if (statusChart) statusChart.destroy();
-  statusChart = new Chart(ctx, {
+  statusChart = new Chart(document.getElementById('status-chart'), {
     type: 'doughnut',
-    data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 0 }] },
-    options: {
-      plugins: { legend: { position: 'bottom', labels: { color: '#8b949e', font: { size: 10 }, boxWidth: 10 } } },
-      cutout: '60%',
-    },
+    data: { labels: byStatus.map(s => s.status), datasets: [{ data: byStatus.map(s => s.count), backgroundColor: ['#58a6ff','#3fb950','#d29922','#56d364','#f85149','#484f58','#8b949e','#bc8cff'], borderWidth: 0 }] },
+    options: { plugins: { legend: { position: 'bottom', labels: { color: '#8b949e', font: { size: 10 }, boxWidth: 10 } } }, cutout: '60%' },
   });
 }
 
 function renderScoreChart(apps) {
-  const ctx = document.getElementById('score-chart');
-  const buckets = { '4.5-5.0': 0, '4.0-4.4': 0, '3.5-3.9': 0, '<3.5': 0 };
-  apps.forEach(a => {
-    if (!a.score) return;
-    if (a.score >= 4.5) buckets['4.5-5.0']++;
-    else if (a.score >= 4.0) buckets['4.0-4.4']++;
-    else if (a.score >= 3.5) buckets['3.5-3.9']++;
-    else buckets['<3.5']++;
-  });
-
+  const b = { '4.5-5': 0, '4-4.4': 0, '3.5-3.9': 0, '<3.5': 0 };
+  apps.forEach(a => { if (!a.score) return; if (a.score>=4.5) b['4.5-5']++; else if (a.score>=4) b['4-4.4']++; else if (a.score>=3.5) b['3.5-3.9']++; else b['<3.5']++; });
   if (scoreChart) scoreChart.destroy();
-  scoreChart = new Chart(ctx, {
+  scoreChart = new Chart(document.getElementById('score-chart'), {
     type: 'bar',
-    data: {
-      labels: Object.keys(buckets),
-      datasets: [{
-        data: Object.values(buckets),
-        backgroundColor: ['#3fb950', '#56d364', '#d29922', '#f85149'],
-        borderRadius: 4,
-        borderWidth: 0,
-      }],
-    },
-    options: {
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { ticks: { color: '#8b949e', font: { size: 10 } }, grid: { color: '#21262d' } },
-        y: { ticks: { color: '#8b949e', font: { size: 10 }, stepSize: 1 }, grid: { color: '#21262d' } },
-      },
-    },
+    data: { labels: Object.keys(b), datasets: [{ data: Object.values(b), backgroundColor: ['#3fb950','#56d364','#d29922','#f85149'], borderRadius: 4, borderWidth: 0 }] },
+    options: { plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#8b949e', font: { size: 10 } }, grid: { color: '#21262d' } }, y: { ticks: { color: '#8b949e', font: { size: 10 }, stepSize: 1 }, grid: { color: '#21262d' } } } },
   });
 }
 
-function escHtml(s) {
+// ── Inbox ─────────────────────────────────────────────────────────────
+
+async function loadPipeline() {
+  const r = await fetch('/api/pipeline').catch(() => null);
+  if (!r?.ok) return;
+  allPipelineJobs = await r.json();
+
+  const pending = allPipelineJobs.filter(j => !j.checked).length;
+  document.getElementById('inbox-badge').textContent = pending ? `(${pending})` : '';
+
+  const companies = [...new Set(allPipelineJobs.map(j => j.company))].sort();
+  const sel = document.getElementById('pipe-company');
+  sel.innerHTML = '<option value="">All companies</option>' + companies.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+
+  applyInboxFilters();
+}
+
+function applyInboxFilters() {
+  const search  = document.getElementById('pipe-search').value.toLowerCase();
+  const fit     = parseFloat(document.getElementById('pipe-fit').value || '0');
+  const portal  = document.getElementById('pipe-portal').value;
+  const company = document.getElementById('pipe-company').value;
+  const hideWeak = document.getElementById('pipe-hide-weak').checked;
+
+  const filtered = allPipelineJobs.filter(j =>
+    (!search  || j.company.toLowerCase().includes(search) || j.role.toLowerCase().includes(search)) &&
+    (!fit     || j.fit_score >= fit) &&
+    (!portal  || j.portal === portal) &&
+    (!company || j.company === company) &&
+    (!hideWeak || j.fit_score >= 2.0)
+  );
+
+  renderInboxGrid(filtered);
+}
+
+function renderInboxGrid(jobs) {
+  const grid  = document.getElementById('pipe-grid');
+  const empty = document.getElementById('pipe-empty');
+  document.getElementById('pipe-count').textContent = `${jobs.length} job${jobs.length !== 1 ? 's' : ''}`;
+
+  if (!jobs.length) { grid.innerHTML = ''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+
+  grid.innerHTML = jobs.map(j => jobCard(j, false)).join('');
+}
+
+function jobCard(j, compact) {
+  const portalCls = 'portal-pill portal-' + (j.portal ?? '');
+  const fitCls    = fitClass(j.fit_label);
+  const stars     = fitStars(j.fit_score);
+  const opacity   = j.checked ? 'opacity-40' : '';
+  const reasons   = (j.fit_reasons ?? []).slice(0, 2).map(r => `<li>${esc(r)}</li>`).join('');
+
+  return `<div class="card p-4 flex flex-col gap-2 transition-colors ${opacity} ${compact ? 'rec-card' : ''}">
+    <div class="flex items-start justify-between gap-2">
+      <div class="flex-1 min-w-0">
+        <div class="font-semibold text-sm text-white truncate" title="${esc(j.company)}">${esc(j.company)}</div>
+        <div class="text-xs text-gray-400 mt-0.5 leading-snug">${esc(j.role)}</div>
+      </div>
+      <span class="portal-pill ${portalCls} shrink-0">${j.portal ?? ''}</span>
+    </div>
+
+    <!-- Fit score -->
+    <div class="flex items-center gap-2">
+      <span class="stars text-sm" title="Fit: ${j.fit_score}/5">${stars}</span>
+      <span class="text-xs px-2 py-0.5 rounded-full font-semibold ${fitCls}">${j.fit_label}</span>
+      <span class="text-xs text-gray-600 font-mono">${j.fit_score.toFixed(1)}/5</span>
+    </div>
+
+    ${reasons ? `<ul class="text-xs text-gray-500 list-disc list-inside space-y-0.5">${reasons}</ul>` : ''}
+    ${j.skip_reason ? `<div class="text-xs text-red-400 italic">${esc(j.skip_reason)}</div>` : ''}
+    ${j.location ? `<div class="text-xs text-gray-600">${esc(j.location)}</div>` : ''}
+
+    <div class="flex items-center gap-2 mt-auto pt-2 border-t border-gray-800">
+      <a href="${esc(j.url)}" target="_blank" rel="noopener" class="text-xs text-blue-400 hover:underline flex-1 truncate">${esc(j.url)}</a>
+      <button onclick="navigator.clipboard.writeText('${esc(j.url)}')" class="text-xs text-gray-600 hover:text-gray-300 shrink-0">copy</button>
+    </div>
+  </div>`;
+}
+
+// ── Recommendations ───────────────────────────────────────────────────
+
+async function loadRecs() {
+  const r = await fetch('/api/recommendations').catch(() => null);
+  if (!r?.ok) return;
+  const data = await r.json();
+
+  document.getElementById('recs-badge').textContent = data.length ? `(${data.length})` : '';
+
+  const list  = document.getElementById('recs-list');
+  const empty = document.getElementById('recs-empty');
+
+  if (!data.length) { list.innerHTML = ''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+
+  list.innerHTML = data.map((j, i) => `
+    <div class="card p-5 ${j.fit_score >= 4 ? 'rec-card' : 'rec-card rec-card-good'} flex flex-col gap-3">
+      <div class="flex items-start gap-3">
+        <div class="text-2xl font-bold text-gray-700 w-8 shrink-0">${i + 1}</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="font-bold text-white">${esc(j.company)}</span>
+            <span class="portal-pill portal-${j.portal ?? ''}">${j.portal ?? ''}</span>
+          </div>
+          <div class="text-sm text-gray-300 mt-0.5">${esc(j.role)}</div>
+          ${j.location ? `<div class="text-xs text-gray-600 mt-0.5">${esc(j.location)}</div>` : ''}
+        </div>
+        <div class="text-right shrink-0">
+          <div class="stars text-xl">${fitStars(j.fit_score)}</div>
+          <div class="text-xs text-gray-500 mt-0.5">${j.fit_score.toFixed(1)} / 5</div>
+          <span class="text-xs px-2 py-0.5 rounded-full font-semibold ${fitClass(j.fit_label)} mt-1 inline-block">${j.fit_label}</span>
+        </div>
+      </div>
+
+      ${j.fit_reasons?.length ? `
+        <div>
+          <div class="text-xs text-gray-500 font-semibold mb-1">Why this fits you:</div>
+          <ul class="text-xs text-gray-400 list-disc list-inside space-y-0.5">
+            ${j.fit_reasons.map(r => `<li>${esc(r)}</li>`).join('')}
+          </ul>
+        </div>` : ''}
+
+      <div class="flex items-center gap-3 pt-2 border-t border-gray-800">
+        <a href="${esc(j.url)}" target="_blank" rel="noopener"
+           class="text-xs px-3 py-1.5 rounded bg-blue-900/40 text-blue-400 hover:bg-blue-900/70 transition font-semibold">
+          View Job →
+        </a>
+        <button onclick="navigator.clipboard.writeText('${esc(j.url)}'); this.textContent='Copied!'; setTimeout(()=>this.textContent='Copy URL',1500)"
+                class="text-xs px-3 py-1.5 rounded border border-gray-700 text-gray-400 hover:border-gray-500 transition">
+          Copy URL
+        </button>
+        <span class="text-xs text-gray-600 ml-auto">Paste URL in Claude Code to evaluate</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────
+
+function fitStars(score) {
+  const full  = Math.floor(score);
+  const half  = score - full >= 0.5 ? 1 : 0;
+  const empty = 5 - full - half;
+  const col   = score >= 4 ? '#3fb950' : score >= 3 ? '#d29922' : '#8b949e';
+  return `<span style="color:${col}">${'★'.repeat(full)}${'⯨'.repeat(half)}${'☆'.repeat(empty)}</span>`;
+}
+
+function fitClass(label) {
+  return { 'Strong Match': 'fit-strong', 'Good Match': 'fit-good', 'Partial Match': 'fit-partial', 'Weak Match': 'fit-weak' }[label] ?? 'fit-weak';
+}
+
+function esc(s) {
   return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 

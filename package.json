@@ -12,7 +12,12 @@
     "migrate": "tsx src/db/migrate.ts",
     "export": "tsx src/commands/export.ts",
     "followup": "tsx src/commands/followup.ts",
-    "liveness": "tsx src/commands/liveness.ts"
+    "liveness": "tsx src/commands/liveness.ts",
+    "scrape": "tsx src/commands/scrape.ts",
+    "scrape:linkedin": "tsx src/commands/scrape.ts --source linkedin",
+    "scrape:wellfound": "tsx src/commands/scrape.ts --source wellfound",
+    "scan:feeds": "tsx src/commands/scan.ts --source feeds",
+    "scan:portals": "tsx src/commands/scan.ts --source portals"
   },
   "keywords": ["ai", "job-search", "claude-code", "career", "automation", "typescript"],
   "author": "Yourtrulysatish",

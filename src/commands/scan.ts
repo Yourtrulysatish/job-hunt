@@ -1,17 +1,21 @@
 #!/usr/bin/env tsx
 
 /**
- * scan.ts — Multi-portal job scanner
+ * scan.ts — Multi-source job scanner
  *
- * Hits Greenhouse, Ashby, Lever, Workday, SmartRecruiters, and Rippling APIs
- * directly (zero LLM tokens). Deduplicates via SQLite scan_history and
- * applications tables. Appends new offers to data/pipeline.md.
+ * Sources:
+ *   Company portals  — Greenhouse, Ashby, Lever, Workday, SmartRecruiters
+ *   Aggregator APIs  — Remotive, RemoteOK, Himalayas
+ *   RSS feeds        — CryptoJobsList, Web3.career, any RSS/Atom feed
+ *
+ * Zero LLM tokens. Deduplicates via SQLite. Appends to data/pipeline.md.
  *
  * Usage:
- *   tsx src/commands/scan.ts
- *   tsx src/commands/scan.ts --company Anthropic
+ *   tsx src/commands/scan.ts                   # scan everything
+ *   tsx src/commands/scan.ts --source portals  # company portals only
+ *   tsx src/commands/scan.ts --source feeds    # RSS + aggregators only
+ *   tsx src/commands/scan.ts --company Ripple  # single company
  *   tsx src/commands/scan.ts --dry-run
- *   tsx src/commands/scan.ts --portal greenhouse
  */
 
 import { readFileSync, writeFileSync, appendFileSync, existsSync } from 'fs';
@@ -24,38 +28,51 @@ import { hasSeenUrl, hasSeenInApplications, recordScan } from '../db/queries.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..', '..');
-
 const PORTALS_PATH = join(ROOT, 'config', 'portals.yml');
 const PIPELINE_PATH = join(ROOT, 'data', 'pipeline.md');
 const CONCURRENCY = 8;
 const TIMEOUT_MS = 12_000;
 
-// ── Args ──────────────────────────────────────────────────────────────
+// ── CLI args ─────────────────────────────────────────────────────────
 
 const args = process.argv.slice(2);
-const DRY_RUN = args.includes('--dry-run');
+const DRY_RUN      = args.includes('--dry-run');
 const COMPANY_FILTER = args.includes('--company') ? args[args.indexOf('--company') + 1]?.toLowerCase() : null;
-const PORTAL_FILTER = args.includes('--portal') ? args[args.indexOf('--portal') + 1]?.toLowerCase() : null;
+const SOURCE_FILTER  = args.includes('--source')  ? args[args.indexOf('--source') + 1]?.toLowerCase()  : null; // portals | feeds | all
 
 // ── Types ─────────────────────────────────────────────────────────────
 
-type Portal = 'greenhouse' | 'ashby' | 'lever' | 'workday' | 'smartrecruiters' | 'rippling' | 'custom';
+type Portal = 'greenhouse' | 'ashby' | 'lever' | 'workday' | 'smartrecruiters' |
+              'remotive' | 'remoteok' | 'himalayas' | 'rss';
 
 interface Company {
   name: string;
-  portal?: Portal;
+  portal?: string;
   api?: string;
   careers_url?: string;
-  custom_api?: string;
+  enabled?: boolean;
+}
+
+interface Aggregator {
+  name: string;
+  type: 'remotive' | 'remoteok' | 'himalayas';
+  categories?: string[];
+  tags?: string[];
+  queries?: string[];
+  enabled?: boolean;
+}
+
+interface RssFeed {
+  name: string;
+  url: string;
   enabled?: boolean;
 }
 
 interface PortalConfig {
-  title_filter: {
-    positive: string[];
-    negative: string[];
-  };
+  title_filter: { positive: string[]; negative: string[] };
   companies: Company[];
+  aggregators?: Aggregator[];
+  rss_feeds?: RssFeed[];
 }
 
 interface JobListing {
@@ -65,77 +82,18 @@ interface JobListing {
   location?: string;
   remote?: boolean;
   salary?: string;
-  portal: Portal;
+  portal: Portal | string;
 }
 
-// ── API detection ─────────────────────────────────────────────────────
+// ── HTTP helper ───────────────────────────────────────────────────────
 
-function detectPortal(company: Company): { portal: Portal; apiUrl: string } | null {
-  if (company.portal === 'greenhouse' && company.api) {
-    return { portal: 'greenhouse', apiUrl: company.api };
-  }
-
-  const url = company.careers_url ?? '';
-
-  // Ashby
-  const ashby = url.match(/jobs\.ashbyhq\.com\/([^/?#]+)/);
-  if (ashby) {
-    return {
-      portal: 'ashby',
-      apiUrl: `https://api.ashbyhq.com/posting-api/job-board/${ashby[1]}?includeCompensation=true`,
-    };
-  }
-
-  // Lever
-  const lever = url.match(/jobs\.lever\.co\/([^/?#]+)/);
-  if (lever) {
-    return { portal: 'lever', apiUrl: `https://api.lever.co/v0/postings/${lever[1]}?mode=json` };
-  }
-
-  // Greenhouse via board token in URL
-  const gh = url.match(/boards\.greenhouse\.io\/([^/?#]+)/);
-  if (gh) {
-    return {
-      portal: 'greenhouse',
-      apiUrl: `https://boards-api.greenhouse.io/v1/boards/${gh[1]}/jobs?content=true`,
-    };
-  }
-
-  // Workday
-  const wd = url.match(/([a-z0-9]+)\.wd\d+\.myworkdayjobs\.com\/([^/?#]+)/);
-  if (wd) {
-    return {
-      portal: 'workday',
-      apiUrl: `https://${wd[1]}.wd5.myworkdayjobs.com/wday/cxs/${wd[1]}/${wd[2]}/jobs`,
-    };
-  }
-
-  // SmartRecruiters
-  const sr = url.match(/careers\.smartrecruiters\.com\/([^/?#]+)/);
-  if (sr) {
-    return {
-      portal: 'smartrecruiters',
-      apiUrl: `https://api.smartrecruiters.com/v1/companies/${sr[1]}/postings?status=PUBLIC&limit=100`,
-    };
-  }
-
-  // Rippling
-  if (url.includes('rippling.com/jobs') && company.custom_api) {
-    return { portal: 'rippling', apiUrl: company.custom_api };
-  }
-
-  return null;
-}
-
-// ── Fetchers ──────────────────────────────────────────────────────────
-
-async function fetchWithTimeout(url: string): Promise<unknown> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+async function fetchJSON(url: string): Promise<unknown> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
   try {
     const res = await fetch(url, {
-      signal: controller.signal,
-      headers: { 'User-Agent': 'job-hunt-scanner/1.0' },
+      signal: ctrl.signal,
+      headers: { 'User-Agent': 'job-hunt-scanner/1.0', Accept: 'application/json' },
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return await res.json();
@@ -144,225 +102,361 @@ async function fetchWithTimeout(url: string): Promise<unknown> {
   }
 }
 
-async function fetchGreenhouse(apiUrl: string, company: Company, filter: RegExp[]): Promise<JobListing[]> {
-  const data = await fetchWithTimeout(apiUrl) as { jobs?: Array<{ title: string; absolute_url: string; location?: { name?: string } }> };
-  return (data.jobs ?? [])
-    .filter(j => matchesFilter(j.title, filter))
-    .map(j => ({
-      company: company.name,
-      role: j.title,
-      url: j.absolute_url,
-      location: j.location?.name,
-      portal: 'greenhouse' as Portal,
-    }));
-}
-
-async function fetchAshby(apiUrl: string, company: Company, filter: RegExp[]): Promise<JobListing[]> {
-  const data = await fetchWithTimeout(apiUrl) as {
-    jobPostings?: Array<{ title: string; jobUrl: string; isListed: boolean; location?: { city?: string }; compensation?: { summary?: string } }>;
-  };
-  return (data.jobPostings ?? [])
-    .filter(j => j.isListed && matchesFilter(j.title, filter))
-    .map(j => ({
-      company: company.name,
-      role: j.title,
-      url: j.jobUrl,
-      location: j.location?.city,
-      salary: j.compensation?.summary,
-      portal: 'ashby' as Portal,
-    }));
-}
-
-async function fetchLever(apiUrl: string, company: Company, filter: RegExp[]): Promise<JobListing[]> {
-  const data = await fetchWithTimeout(apiUrl) as Array<{
-    text: string;
-    hostedUrl: string;
-    categories?: { location?: string; commitment?: string };
-  }>;
-  return (Array.isArray(data) ? data : [])
-    .filter(j => matchesFilter(j.text, filter))
-    .map(j => ({
-      company: company.name,
-      role: j.text,
-      url: j.hostedUrl,
-      location: j.categories?.location,
-      remote: j.categories?.commitment?.toLowerCase().includes('remote'),
-      portal: 'lever' as Portal,
-    }));
-}
-
-async function fetchWorkday(apiUrl: string, company: Company, filter: RegExp[]): Promise<JobListing[]> {
-  const data = await fetchWithTimeout(apiUrl) as {
-    jobPostings?: Array<{ title: string; externalPath: string; locationsText?: string; remoteType?: string }>;
-  };
-  const base = new URL(apiUrl);
-  const baseUrl = `${base.protocol}//${base.host}`;
-  return (data.jobPostings ?? [])
-    .filter(j => matchesFilter(j.title, filter))
-    .map(j => ({
-      company: company.name,
-      role: j.title,
-      url: `${baseUrl}${j.externalPath}`,
-      location: j.locationsText,
-      remote: j.remoteType?.toLowerCase().includes('remote'),
-      portal: 'workday' as Portal,
-    }));
-}
-
-async function fetchSmartRecruiters(apiUrl: string, company: Company, filter: RegExp[]): Promise<JobListing[]> {
-  const data = await fetchWithTimeout(apiUrl) as {
-    content?: Array<{ name: string; ref: string; location?: { city?: string; country?: string }; workplace?: { wtype?: string } }>;
-  };
-  return (data.content ?? [])
-    .filter(j => matchesFilter(j.name, filter))
-    .map(j => ({
-      company: company.name,
-      role: j.name,
-      url: j.ref,
-      location: [j.location?.city, j.location?.country].filter(Boolean).join(', '),
-      remote: j.workplace?.wtype === 'REMOTE',
-      portal: 'smartrecruiters' as Portal,
-    }));
-}
-
-// ── Filter ────────────────────────────────────────────────────────────
-
-function buildFilter(config: PortalConfig): { positive: RegExp[]; negative: RegExp[] } {
-  return {
-    positive: config.title_filter.positive.map(p => new RegExp(p, 'i')),
-    negative: config.title_filter.negative.map(p => new RegExp(p, 'i')),
-  };
-}
-
-function matchesFilter(title: string, positiveFilters: RegExp[]): boolean {
-  return positiveFilters.some(r => r.test(title));
-}
-
-function notNegative(title: string, negativeFilters: RegExp[]): boolean {
-  return !negativeFilters.some(r => r.test(title));
-}
-
-// ── Main ──────────────────────────────────────────────────────────────
-
-async function scanCompany(company: Company, filter: { positive: RegExp[]; negative: RegExp[] }): Promise<JobListing[]> {
-  const detected = detectPortal(company);
-  if (!detected) return [];
-
-  if (PORTAL_FILTER && detected.portal !== PORTAL_FILTER) return [];
-
+async function fetchText(url: string): Promise<string> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
   try {
-    let listings: JobListing[] = [];
+    const res = await fetch(url, {
+      signal: ctrl.signal,
+      headers: { 'User-Agent': 'job-hunt-scanner/1.0', Accept: 'application/rss+xml, application/xml, text/xml' },
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.text();
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
+// ── Filters ───────────────────────────────────────────────────────────
+
+function buildFilter(cfg: PortalConfig) {
+  return {
+    positive: cfg.title_filter.positive.map(p => new RegExp(p, 'i')),
+    negative: cfg.title_filter.negative.map(p => new RegExp(p, 'i')),
+  };
+}
+
+function passes(title: string, f: ReturnType<typeof buildFilter>): boolean {
+  return f.positive.some(r => r.test(title)) && !f.negative.some(r => r.test(title));
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// COMPANY PORTAL FETCHERS
+// ══════════════════════════════════════════════════════════════════════
+
+function detectPortalApi(company: Company): { portal: string; apiUrl: string } | null {
+  if (company.portal === 'greenhouse' && company.api) return { portal: 'greenhouse', apiUrl: company.api };
+  const url = company.careers_url ?? '';
+
+  const ashby = url.match(/jobs\.ashbyhq\.com\/([^/?#]+)/);
+  if (ashby) return { portal: 'ashby', apiUrl: `https://api.ashbyhq.com/posting-api/job-board/${ashby[1]}?includeCompensation=true` };
+
+  const lever = url.match(/jobs\.lever\.co\/([^/?#]+)/);
+  if (lever) return { portal: 'lever', apiUrl: `https://api.lever.co/v0/postings/${lever[1]}?mode=json` };
+
+  const gh = url.match(/boards\.greenhouse\.io\/([^/?#]+)/);
+  if (gh) return { portal: 'greenhouse', apiUrl: `https://boards-api.greenhouse.io/v1/boards/${gh[1]}/jobs?content=true` };
+
+  const wd = url.match(/([a-z0-9]+)\.wd\d+\.myworkdayjobs\.com\/([^/?#]+)/);
+  if (wd) return { portal: 'workday', apiUrl: `https://${wd[1]}.wd5.myworkdayjobs.com/wday/cxs/${wd[1]}/${wd[2]}/jobs` };
+
+  const sr = url.match(/careers\.smartrecruiters\.com\/([^/?#]+)/);
+  if (sr) return { portal: 'smartrecruiters', apiUrl: `https://api.smartrecruiters.com/v1/companies/${sr[1]}/postings?status=PUBLIC&limit=100` };
+
+  return null;
+}
+
+async function fetchCompany(company: Company, f: ReturnType<typeof buildFilter>): Promise<JobListing[]> {
+  const detected = detectPortalApi(company);
+  if (!detected) return [];
+  try {
+    const data = await fetchJSON(detected.apiUrl);
     switch (detected.portal) {
-      case 'greenhouse':
-        listings = await fetchGreenhouse(detected.apiUrl, company, filter.positive);
-        break;
-      case 'ashby':
-        listings = await fetchAshby(detected.apiUrl, company, filter.positive);
-        break;
-      case 'lever':
-        listings = await fetchLever(detected.apiUrl, company, filter.positive);
-        break;
-      case 'workday':
-        listings = await fetchWorkday(detected.apiUrl, company, filter.positive);
-        break;
-      case 'smartrecruiters':
-        listings = await fetchSmartRecruiters(detected.apiUrl, company, filter.positive);
-        break;
+      case 'greenhouse': {
+        const d = data as { jobs?: Array<{ title: string; absolute_url: string; location?: { name?: string } }> };
+        return (d.jobs ?? []).filter(j => passes(j.title, f)).map(j => ({
+          company: company.name, role: j.title, url: j.absolute_url,
+          location: j.location?.name, portal: 'greenhouse',
+        }));
+      }
+      case 'ashby': {
+        const d = data as { jobPostings?: Array<{ title: string; jobUrl: string; isListed: boolean; location?: { city?: string }; compensation?: { summary?: string } }> };
+        return (d.jobPostings ?? []).filter(j => j.isListed && passes(j.title, f)).map(j => ({
+          company: company.name, role: j.title, url: j.jobUrl,
+          location: j.location?.city, salary: j.compensation?.summary, portal: 'ashby',
+        }));
+      }
+      case 'lever': {
+        const d = data as Array<{ text: string; hostedUrl: string; categories?: { location?: string; commitment?: string } }>;
+        return (Array.isArray(d) ? d : []).filter(j => passes(j.text, f)).map(j => ({
+          company: company.name, role: j.text, url: j.hostedUrl,
+          location: j.categories?.location,
+          remote: j.categories?.commitment?.toLowerCase().includes('remote'),
+          portal: 'lever',
+        }));
+      }
+      case 'workday': {
+        const d = data as { jobPostings?: Array<{ title: string; externalPath: string; locationsText?: string }> };
+        const base = new URL(detected.apiUrl);
+        return (d.jobPostings ?? []).filter(j => passes(j.title, f)).map(j => ({
+          company: company.name, role: j.title,
+          url: `${base.protocol}//${base.host}${j.externalPath}`,
+          location: j.locationsText, portal: 'workday',
+        }));
+      }
+      case 'smartrecruiters': {
+        const d = data as { content?: Array<{ name: string; ref: string; location?: { city?: string; country?: string }; workplace?: { wtype?: string } }> };
+        return (d.content ?? []).filter(j => passes(j.name, f)).map(j => ({
+          company: company.name, role: j.name, url: j.ref,
+          location: [j.location?.city, j.location?.country].filter(Boolean).join(', '),
+          remote: j.workplace?.wtype === 'REMOTE', portal: 'smartrecruiters',
+        }));
+      }
     }
-
-    return listings.filter(l => notNegative(l.role, filter.negative));
-  } catch {
-    return [];
-  }
+  } catch { /* silent */ }
+  return [];
 }
 
-function ensurePipelineMd(): void {
-  if (!existsSync(PIPELINE_PATH)) {
-    writeFileSync(
-      PIPELINE_PATH,
-      '# Pipeline — Pending Evaluation\n\nPaste job URLs or add them via scan. Claude will evaluate them in order.\n\n'
-    );
-  }
-}
+// ══════════════════════════════════════════════════════════════════════
+// AGGREGATOR API FETCHERS
+// ══════════════════════════════════════════════════════════════════════
 
-async function runWithConcurrency<T, R>(items: T[], fn: (item: T) => Promise<R>, concurrency: number): Promise<R[]> {
-  const results: R[] = [];
-  for (let i = 0; i < items.length; i += concurrency) {
-    const batch = await Promise.all(items.slice(i, i + concurrency).map(fn));
-    results.push(...batch);
+async function fetchRemotive(agg: Aggregator, f: ReturnType<typeof buildFilter>): Promise<JobListing[]> {
+  const categories = agg.categories ?? ['marketing', 'business-development', 'sales', 'other'];
+  const results: JobListing[] = [];
+  for (const cat of categories) {
+    try {
+      const data = await fetchJSON(`https://remotive.com/api/remote-jobs?category=${cat}&limit=100`) as {
+        jobs?: Array<{ title: string; company_name: string; url: string; candidate_required_location?: string; salary?: string }>;
+      };
+      for (const j of data.jobs ?? []) {
+        if (passes(j.title, f)) {
+          results.push({
+            company: j.company_name, role: j.title, url: j.url,
+            location: j.candidate_required_location ?? 'Remote', remote: true,
+            salary: j.salary || undefined, portal: 'remotive',
+          });
+        }
+      }
+    } catch { /* continue */ }
   }
   return results;
 }
 
+async function fetchRemoteOK(agg: Aggregator, f: ReturnType<typeof buildFilter>): Promise<JobListing[]> {
+  const tags = agg.tags ?? ['marketing', 'crypto', 'blockchain'];
+  const results: JobListing[] = [];
+  for (const tag of tags) {
+    try {
+      const data = await fetchJSON(`https://remoteok.com/api?tag=${encodeURIComponent(tag)}`) as Array<{
+        company?: string; position?: string; url?: string; location?: string; salary_min?: number; salary_max?: number;
+      }>;
+      for (const j of (Array.isArray(data) ? data.slice(1) : [])) { // first item is metadata
+        if (!j.position || !j.company || !j.url) continue;
+        if (passes(j.position, f)) {
+          const salary = j.salary_min && j.salary_max ? `$${Math.round(j.salary_min/1000)}k–$${Math.round(j.salary_max/1000)}k` : undefined;
+          results.push({
+            company: j.company, role: j.position,
+            url: j.url.startsWith('http') ? j.url : `https://remoteok.com${j.url}`,
+            location: j.location ?? 'Remote', remote: true,
+            salary, portal: 'remoteok',
+          });
+        }
+      }
+    } catch { /* continue */ }
+  }
+  return results;
+}
+
+async function fetchHimalayas(agg: Aggregator, f: ReturnType<typeof buildFilter>): Promise<JobListing[]> {
+  const queries = agg.queries ?? ['partnership manager', 'business development', 'growth marketing'];
+  const results: JobListing[] = [];
+  for (const q of queries) {
+    try {
+      const data = await fetchJSON(
+        `https://himalayas.app/api/jobs?q=${encodeURIComponent(q)}&remote=true&limit=50`
+      ) as { jobs?: Array<{ title: string; company: { name: string }; applicationUrl?: string; slug?: string; location?: string; salaryRange?: string }> };
+      for (const j of data.jobs ?? []) {
+        if (passes(j.title, f)) {
+          results.push({
+            company: j.company.name, role: j.title,
+            url: j.applicationUrl ?? `https://himalayas.app/jobs/${j.slug}`,
+            location: j.location ?? 'Remote', remote: true,
+            salary: j.salaryRange || undefined, portal: 'himalayas',
+          });
+        }
+      }
+    } catch { /* continue */ }
+  }
+  return results;
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// RSS FEED PARSER
+// ══════════════════════════════════════════════════════════════════════
+
+function parseRSS(xml: string, sourceName: string, f: ReturnType<typeof buildFilter>): JobListing[] {
+  const results: JobListing[] = [];
+
+  // Extract <item> blocks
+  const items = xml.match(/<item[\s>][\s\S]*?<\/item>/gi) ?? [];
+
+  for (const item of items) {
+    const title   = (item.match(/<title[^>]*><!\[CDATA\[(.*?)\]\]><\/title>/i) ?? item.match(/<title[^>]*>(.*?)<\/title>/i))?.[1]?.trim() ?? '';
+    const link    = (item.match(/<link>(.*?)<\/link>/i) ?? item.match(/<guid[^>]*>(.*?)<\/guid>/i))?.[1]?.trim() ?? '';
+    const company = (item.match(/<author>(.*?)<\/author>/i) ?? item.match(/<dc:creator>(.*?)<\/dc:creator>/i))?.[1]?.trim()
+                 ?? sourceName;
+    const desc    = (item.match(/<description[^>]*><!\[CDATA\[(.*?)\]\]><\/description>/i) ?? item.match(/<description[^>]*>(.*?)<\/description>/i))?.[1] ?? '';
+
+    // Try to extract company from title pattern "Role at Company"
+    const atMatch = title.match(/^(.+?)\s+(?:at|@)\s+(.+)$/i);
+    const role    = atMatch ? atMatch[1].trim() : title;
+    const co      = atMatch ? atMatch[2].trim() : company;
+
+    // Extract location from description (rudimentary)
+    const locMatch = desc.match(/(?:location|remote|🌍|🌎)[:\s]*([A-Za-z,\s]+?)(?:<|\.|$)/i);
+    const location = locMatch?.[1]?.trim();
+
+    if (role && link && passes(role, f)) {
+      results.push({ company: co, role, url: link, location, remote: title.toLowerCase().includes('remote'), portal: 'rss' });
+    }
+  }
+  return results;
+}
+
+async function fetchRSSFeed(feed: RssFeed, f: ReturnType<typeof buildFilter>): Promise<JobListing[]> {
+  try {
+    const xml = await fetchText(feed.url);
+    return parseRSS(xml, feed.name, f);
+  } catch { return []; }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// ORCHESTRATOR
+// ══════════════════════════════════════════════════════════════════════
+
+async function runWithConcurrency<T, R>(items: T[], fn: (item: T) => Promise<R>, n: number): Promise<R[]> {
+  const out: R[] = [];
+  for (let i = 0; i < items.length; i += n) {
+    out.push(...(await Promise.all(items.slice(i, i + n).map(fn))));
+  }
+  return out;
+}
+
+function ensurePipelineMd() {
+  if (!existsSync(PIPELINE_PATH)) {
+    writeFileSync(PIPELINE_PATH, '# Pipeline — Pending Evaluation\n\nPaste job URLs or add via scan.\n\n');
+  }
+}
+
+function portalColor(portal: string): string {
+  const map: Record<string, string> = {
+    greenhouse: chalk.green, ashby: chalk.blue, lever: chalk.magenta,
+    workday: chalk.yellow, smartrecruiters: chalk.cyan,
+    remotive: chalk.greenBright, remoteok: chalk.blueBright,
+    himalayas: chalk.magentaBright, rss: chalk.white,
+  };
+  return (map[portal] ?? chalk.gray)(portal);
+}
+
 async function main() {
   if (!existsSync(PORTALS_PATH)) {
-    console.error(chalk.red('config/portals.yml not found. Copy config/portals.example.yml and customize it.'));
+    console.error(chalk.red('config/portals.yml not found.'));
     process.exit(1);
   }
 
   const config = yaml.load(readFileSync(PORTALS_PATH, 'utf8')) as PortalConfig;
-  const filter = buildFilter(config);
+  const f = buildFilter(config);
+  const allListings: JobListing[] = [];
+  const start = Date.now();
 
-  let companies = config.companies.filter(c => c.enabled !== false);
-  if (COMPANY_FILTER) {
-    companies = companies.filter(c => c.name.toLowerCase().includes(COMPANY_FILTER));
+  // ── Company portals ──────────────────────────────────────────────
+  if (!SOURCE_FILTER || SOURCE_FILTER === 'portals' || SOURCE_FILTER === 'all') {
+    let companies = (config.companies ?? []).filter(c => c.enabled !== false);
+    if (COMPANY_FILTER) companies = companies.filter(c => c.name.toLowerCase().includes(COMPANY_FILTER));
+
+    const spinner = ora(`Scanning ${companies.length} company portals…`).start();
+    const results = (await runWithConcurrency(companies, c => fetchCompany(c, f), CONCURRENCY)).flat();
+    spinner.succeed(`${chalk.bold(companies.length)} company portals → ${chalk.bold(results.length)} matches`);
+    allListings.push(...results);
   }
 
-  const spinner = ora(`Scanning ${companies.length} companies…`).start();
-  const startTime = Date.now();
-
-  const allListings = (
-    await runWithConcurrency(companies, c => scanCompany(c, filter), CONCURRENCY)
-  ).flat();
-
-  // Deduplicate
-  const newListings = allListings.filter(l => !hasSeenUrl(l.url) && !hasSeenInApplications(l.url));
-
-  spinner.succeed(
-    `Scanned ${companies.length} companies in ${((Date.now() - startTime) / 1000).toFixed(1)}s — ${allListings.length} total, ${newListings.length} new`
-  );
-
-  if (newListings.length === 0) {
-    console.log(chalk.dim('No new listings found.'));
-    return;
+  // ── Aggregator APIs ──────────────────────────────────────────────
+  if (!SOURCE_FILTER || SOURCE_FILTER === 'feeds' || SOURCE_FILTER === 'all') {
+    const aggregators = (config.aggregators ?? []).filter(a => a.enabled !== false);
+    if (aggregators.length) {
+      const spinner = ora(`Scanning ${aggregators.length} job aggregators…`).start();
+      for (const agg of aggregators) {
+        let results: JobListing[] = [];
+        try {
+          if (agg.type === 'remotive')  results = await fetchRemotive(agg, f);
+          if (agg.type === 'remoteok')  results = await fetchRemoteOK(agg, f);
+          if (agg.type === 'himalayas') results = await fetchHimalayas(agg, f);
+        } catch { /* silent */ }
+        allListings.push(...results);
+        spinner.text = `${agg.name}: ${results.length} matches`;
+      }
+      const aggTotal = allListings.filter(l => ['remotive','remoteok','himalayas'].includes(l.portal)).length;
+      spinner.succeed(`${chalk.bold(aggregators.length)} aggregators → ${chalk.bold(aggTotal)} matches`);
+    }
   }
+
+  // ── RSS feeds ────────────────────────────────────────────────────
+  if (!SOURCE_FILTER || SOURCE_FILTER === 'feeds' || SOURCE_FILTER === 'all') {
+    const feeds = (config.rss_feeds ?? []).filter(fd => fd.enabled !== false);
+    if (feeds.length) {
+      const spinner = ora(`Scanning ${feeds.length} RSS feeds…`).start();
+      const results = (await runWithConcurrency(feeds, fd => fetchRSSFeed(fd, f), 4)).flat();
+      spinner.succeed(`${chalk.bold(feeds.length)} RSS feeds → ${chalk.bold(results.length)} matches`);
+      allListings.push(...results);
+    }
+  }
+
+  // ── Dedup ────────────────────────────────────────────────────────
+  const seen = new Set<string>();
+  const deduped = allListings.filter(l => {
+    if (seen.has(l.url)) return false;
+    seen.add(l.url);
+    return true;
+  });
+  const newListings = deduped.filter(l => !hasSeenUrl(l.url) && !hasSeenInApplications(l.url));
+
+  const elapsed = ((Date.now() - start) / 1000).toFixed(1);
+  console.log(chalk.bold(`\n  ${deduped.length} total matches · ${chalk.green(newListings.length + ' new')} · ${elapsed}s\n`));
+
+  if (!newListings.length) { console.log(chalk.dim('  No new listings.')); return; }
 
   if (DRY_RUN) {
-    console.log(chalk.yellow('\n[DRY RUN] Would add:'));
+    console.log(chalk.yellow('[DRY RUN] Would add:'));
     for (const l of newListings) {
-      console.log(`  ${chalk.bold(l.company)} — ${l.role}`);
-      console.log(chalk.dim(`    ${l.url}`));
+      console.log(`  [${portalColor(l.portal)}] ${chalk.bold(l.company)} — ${l.role}`);
+      if (l.location) console.log(chalk.dim(`    ${l.location}`));
     }
     return;
   }
 
   ensurePipelineMd();
 
-  const lines: string[] = [
-    `\n## Scan — ${new Date().toISOString().split('T')[0]} (${newListings.length} new)\n`,
-  ];
+  // Group by source for readable output
+  const byPortal = new Map<string, JobListing[]>();
+  for (const l of newListings) {
+    if (!byPortal.has(l.portal)) byPortal.set(l.portal, []);
+    byPortal.get(l.portal)!.push(l);
+  }
 
-  for (const listing of newListings) {
-    const meta: string[] = [];
-    if (listing.location) meta.push(listing.location);
-    if (listing.remote) meta.push('Remote');
-    if (listing.salary) meta.push(listing.salary);
+  const lines: string[] = [`\n## Scan — ${new Date().toISOString().split('T')[0]} (${newListings.length} new)\n`];
 
-    lines.push(
-      `- [ ] **${listing.company}** — ${listing.role}${meta.length ? ` · ${meta.join(' · ')}` : ''}`,
-      `  URL: ${listing.url}`,
-      `  Portal: ${listing.portal}`,
-      ''
-    );
-
-    recordScan(listing.company, listing.role, listing.url, listing.portal);
+  for (const [portal, jobs] of byPortal) {
+    lines.push(`\n### Source: ${portal}\n`);
+    for (const l of jobs) {
+      const meta = [l.location, l.remote ? 'Remote' : null, l.salary].filter(Boolean).join(' · ');
+      lines.push(`- [ ] **${l.company}** — ${l.role}${meta ? ` · ${meta}` : ''}`);
+      lines.push(`  URL: ${l.url}`);
+      lines.push(`  Portal: ${portal}`);
+      lines.push('');
+      recordScan(l.company, l.role, l.url, portal);
+    }
   }
 
   appendFileSync(PIPELINE_PATH, lines.join('\n'));
 
-  console.log(chalk.green(`\n✓ ${newListings.length} new listings added to data/pipeline.md`));
-  console.log(chalk.dim('Run Claude Code in this directory to start evaluating.'));
+  // Summary by source
+  console.log('  Added by source:');
+  for (const [portal, jobs] of byPortal) {
+    console.log(`    ${portalColor(portal).padEnd(20)} ${chalk.bold(jobs.length)} jobs`);
+  }
+  console.log(chalk.green(`\n  ✓ ${newListings.length} new listings → data/pipeline.md`));
+  console.log(chalk.dim('  Open Claude Code and paste a job URL to start evaluating.'));
 }
 
 main().catch(err => {
