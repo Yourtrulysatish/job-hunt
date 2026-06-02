@@ -285,3 +285,19 @@ Paste job URLs or add them via scan. Claude will evaluate them in order.
 - [ ] **Alpaca** — Events Marketing Manager · Remote - North America or South America · Remote
   URL: https://remoteOK.com/remote-jobs/remote-events-marketing-manager-alpaca-1129242
   Portal: remoteok
+
+## Scan — 2026-06-02 (2 new)
+
+
+### Source: lever
+
+- [ ] **Immutable** — Senior Business Development Manager, Americas · AMER
+  URL: https://jobs.lever.co/immutable/873e93e2-86e0-4695-94bc-9f800a930bce
+  Portal: lever
+
+
+### Source: remoteok
+
+- [ ] **Dreamscape Learn** — Executive Director K12 Academic Partnerships · New York, New York, New York, United States · Remote
+  URL: https://remoteOK.com/remote-jobs/remote-executive-director-k12-academic-partnerships-dreamscape-learn-1132680
+  Portal: remoteok

@@ -7,6 +7,7 @@ import express from 'express';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { readFileSync, existsSync } from 'fs';
+import { spawn } from 'child_process';
 import yaml from 'js-yaml';
 import {
   getApplications, getStats, getOverdueFollowups, getTopSkillGaps,
@@ -143,6 +144,41 @@ app.get('/api/gmail', (_req, res) => {
 });
 
 // ── API: Profile ──────────────────────────────────────────────────────
+
+// ── API: Scan trigger ─────────────────────────────────────────────────
+
+let scanRunning = false;
+let lastScanResult: { newJobs: number; total: number; timestamp: string } | null = null;
+
+app.get('/api/scan/status', (_req, res) => {
+  res.json({ running: scanRunning, last: lastScanResult });
+});
+
+app.post('/api/scan', (_req, res) => {
+  if (scanRunning) return res.status(409).json({ error: 'Scan already running' });
+
+  scanRunning = true;
+  res.json({ started: true });
+
+  const proc = spawn('npx', ['tsx', 'src/commands/scan.ts'], {
+    cwd: ROOT, stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  let stdout = '';
+  proc.stdout.on('data', (d: Buffer) => { stdout += d.toString(); });
+  proc.stderr.on('data', (d: Buffer) => { stdout += d.toString(); });
+
+  proc.on('close', () => {
+    scanRunning = false;
+    const newMatch = stdout.match(/(\d+) new/);
+    const totalMatch = stdout.match(/(\d+) total/);
+    lastScanResult = {
+      newJobs: newMatch ? parseInt(newMatch[1]) : 0,
+      total: totalMatch ? parseInt(totalMatch[1]) : 0,
+      timestamp: new Date().toISOString(),
+    };
+  });
+});
 
 // ── API: Hunter / Gamification ────────────────────────────────────────
 
