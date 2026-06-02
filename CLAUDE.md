@@ -88,26 +88,35 @@ Store insights in `modes/_profile.md` and `config/profile.yml`.
 | "Negotiate this offer" | `modes/negotiate.md` |
 | "What skills am I missing?" | Query skills_gap table |
 | "Start dashboard" | Run `npm run dashboard` → http://localhost:3333 |
+| "Apply to this job" / "Generate application" / "Write cover letter" | `modes/apply.md` |
+| "What should I do today?" / "Morning briefing" | Run `npm run brief` |
+| "Record this application" / "I applied to X" | Run `npm run record -- --company X --role Y --status Applied` |
 
 ---
 
 ## Evaluation → Database Rule
 
-After every evaluation, insert into the SQLite database using a helper script or direct SQL. **Never store pipeline data in markdown files.**
+After every evaluation, record it with the record command. **Never store pipeline data in markdown files.**
 
 ```bash
-# The AI should call this after evaluation:
-tsx src/commands/record.ts \
-  --company "Acme Corp" \
-  --role "Senior Engineer" \
+npx tsx src/commands/record.ts \
+  --company "Ripple" \
+  --role "Senior Ecosystem Growth Manager" \
   --url "https://..." \
-  --score 4.3 \
-  --archetype "Agentic/Automation" \
-  --status "Evaluated" \
-  --report "reports/001-acme-corp-2026-06-02.md"
+  --score 4.2 \
+  --status "Evaluated"
 ```
 
 Reports live in `reports/{num}-{company-slug}-{YYYY-MM-DD}.md`.
+
+**After evaluation — if score ≥ 4.0:**
+Ask the user: "Score is X.X/5 — strong match. Want me to generate the full application package (cover letter, CV changes, recruiter email)?"
+If yes → read `modes/apply.md` and execute it.
+Save output to `output/applications/{num}-{company-slug}-{date}/`.
+
+**After user says "I applied":**
+Run: `npx tsx src/commands/record.ts --company X --role Y --status Applied`
+This auto-schedules follow-up reminders at +7 and +14 days.
 
 ---
 

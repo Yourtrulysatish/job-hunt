@@ -17,7 +17,9 @@
     "scrape:linkedin": "tsx src/commands/scrape.ts --source linkedin",
     "scrape:wellfound": "tsx src/commands/scrape.ts --source wellfound",
     "scan:feeds": "tsx src/commands/scan.ts --source feeds",
-    "scan:portals": "tsx src/commands/scan.ts --source portals"
+    "scan:portals": "tsx src/commands/scan.ts --source portals",
+    "brief": "tsx src/commands/brief.ts",
+    "record": "tsx src/commands/record.ts"
   },
   "keywords": ["ai", "job-search", "claude-code", "career", "automation", "typescript"],
   "author": "Yourtrulysatish",
