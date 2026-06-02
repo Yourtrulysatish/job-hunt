@@ -73,6 +73,41 @@ CREATE TABLE IF NOT EXISTS skills_gap (
   last_seen    TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+-- Proper opportunity database replacing pipeline.md
+CREATE TABLE IF NOT EXISTS pipeline_jobs (
+  id           INTEGER PRIMARY KEY AUTOINCREMENT,
+  company      TEXT NOT NULL,
+  role         TEXT NOT NULL,
+  url          TEXT NOT NULL UNIQUE,
+  portal       TEXT,
+  location     TEXT,
+  remote       INTEGER DEFAULT 0,
+  salary       TEXT,
+  fit_score    REAL,
+  fit_label    TEXT,
+  status       TEXT NOT NULL DEFAULT 'new',  -- new | reviewed | applied | skipped
+  scanned_at   TEXT NOT NULL DEFAULT (datetime('now')),
+  reviewed_at  TEXT,
+  notes        TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_pipeline_fit   ON pipeline_jobs(fit_score DESC);
+CREATE INDEX IF NOT EXISTS idx_pipeline_status ON pipeline_jobs(status);
+
+CREATE TABLE IF NOT EXISTS gmail_threads (
+  id           INTEGER PRIMARY KEY AUTOINCREMENT,
+  thread_id    TEXT NOT NULL UNIQUE,
+  subject      TEXT,
+  from_email   TEXT,
+  from_name    TEXT,
+  snippet      TEXT,
+  date         TEXT,
+  label        TEXT,  -- recruiter | interview | offer | rejection | other
+  application_id INTEGER REFERENCES applications(id),
+  processed    INTEGER NOT NULL DEFAULT 0,
+  created_at   TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
 CREATE TABLE IF NOT EXISTS salary_data (
   id           INTEGER PRIMARY KEY AUTOINCREMENT,
   role         TEXT NOT NULL,

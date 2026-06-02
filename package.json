@@ -19,16 +19,30 @@
     "scan:feeds": "tsx src/commands/scan.ts --source feeds",
     "scan:portals": "tsx src/commands/scan.ts --source portals",
     "brief": "tsx src/commands/brief.ts",
-    "record": "tsx src/commands/record.ts"
+    "record": "tsx src/commands/record.ts",
+    "generate": "tsx src/commands/generate.ts",
+    "generate:cover": "tsx src/commands/generate.ts --type cover",
+    "generate:resume": "tsx src/commands/generate.ts --type resume",
+    "gmail": "tsx src/commands/gmail.ts",
+    "gmail:auth": "tsx src/commands/gmail.ts auth"
   },
-  "keywords": ["ai", "job-search", "claude-code", "career", "automation", "typescript"],
+  "keywords": [
+    "ai",
+    "job-search",
+    "claude-code",
+    "career",
+    "automation",
+    "typescript"
+  ],
   "author": "Yourtrulysatish",
   "license": "MIT",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.100.1",
     "better-sqlite3": "^11.0.0",
     "chalk": "^5.3.0",
     "dotenv": "^16.4.5",
     "express": "^4.21.2",
+    "googleapis": "^173.0.0",
     "js-yaml": "^4.1.1",
     "ora": "^8.1.1",
     "playwright": "^1.48.0"

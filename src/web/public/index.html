@@ -1,511 +1,573 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Job Hunt — Dashboard</title>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Job Hunt</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
-    * { box-sizing: border-box; }
-    body { background: #0d1117; color: #e6edf3; font-family: 'SF Mono', 'Fira Code', monospace; }
-    .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; }
-    .card:hover { border-color: #484f58; }
-    input, select { background: #0d1117; border: 1px solid #30363d; color: #e6edf3; border-radius: 6px; padding: 6px 10px; font-size: 13px; }
-    input:focus, select:focus { outline: 1px solid #1f6feb; }
-    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #0d1117; } ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
-
-    /* Tabs */
-    .tab-btn { color: #8b949e; border: 1px solid transparent; cursor: pointer; transition: all .15s; }
-    .tab-btn.active { color: #e6edf3; border-color: #30363d; background: #21262d; }
-    .tab-btn:hover:not(.active) { color: #e6edf3; }
-
-    /* Status pills */
-    .status-pill { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
-    .pill-Evaluated   { background: #1f6feb33; color: #58a6ff; }
-    .pill-Applied     { background: #1a7f3733; color: #3fb950; }
-    .pill-Interview   { background: #9e6a0333; color: #d29922; }
-    .pill-Offer       { background: #2ea04333; color: #56d364; }
-    .pill-Rejected    { background: #da363333; color: #f85149; }
-    .pill-Discarded   { background: #21262d;   color: #8b949e; }
-    .pill-SKIP        { background: #21262d;   color: #484f58; }
-    .pill-Responded   { background: #31366633; color: #8b949e; }
-
-    /* Fit labels */
-    .fit-strong  { background: #0d4a1a; color: #56d364; }
-    .fit-good    { background: #3a2e0a; color: #d29922; }
-    .fit-partial { background: #3a1e0a; color: #ffa657; }
-    .fit-weak    { background: #21262d; color: #8b949e; }
-
-    /* Portal pills */
-    .portal-pill { font-size: 10px; padding: 1px 7px; border-radius: 10px; font-weight: 600; display: inline-block; }
-    .portal-greenhouse      { background: #0d4a1a; color: #56d364; }
-    .portal-ashby           { background: #1a2d5a; color: #79b8ff; }
-    .portal-lever           { background: #3a1a4a; color: #d2a8ff; }
-    .portal-workday         { background: #4a2a0a; color: #ffa657; }
-    .portal-smartrecruiters { background: #1a3a3a; color: #56d4d4; }
-    .portal-remotive        { background: #0d3a2a; color: #56d4a0; }
-    .portal-remoteok        { background: #1a3a1a; color: #a0e87a; }
-    .portal-himalayas       { background: #2a1a3a; color: #c8a8ff; }
-    .portal-rss             { background: #3a2a0a; color: #ffcc66; }
-    .portal-linkedin        { background: #0a1e3a; color: #4a9eff; }
-    .portal-wellfound       { background: #2a0a1a; color: #ff7eb3; }
-
-    /* Overdue */
-    .overdue-alert { border-left: 3px solid #f85149; }
-
-    /* Score */
-    .score-high { color: #3fb950; }
-    .score-mid  { color: #d29922; }
-    .score-low  { color: #f85149; }
-
-    /* Fit stars */
-    .stars { letter-spacing: -1px; }
-
-    /* Recommendation card accent */
-    .rec-card { border-left: 3px solid #3fb950; }
-    .rec-card-good { border-left-color: #d29922; }
+    *{box-sizing:border-box}
+    body{background:#0d1117;color:#e6edf3;font-family:'SF Mono','Fira Code',monospace;font-size:13px}
+    .card{background:#161b22;border:1px solid #30363d;border-radius:8px;transition:border-color .15s}
+    .card:hover{border-color:#484f58}
+    input,select,textarea{background:#0d1117;border:1px solid #30363d;color:#e6edf3;border-radius:6px;padding:6px 10px;font-size:12px;font-family:inherit}
+    input:focus,select:focus,textarea:focus{outline:1px solid #1f6feb;border-color:#1f6feb}
+    button.btn{padding:5px 14px;border-radius:6px;font-size:12px;cursor:pointer;transition:all .15s;font-family:inherit}
+    button.btn-primary{background:#1f6feb;color:#fff;border:1px solid #1f6feb}
+    button.btn-primary:hover{background:#388bfd}
+    button.btn-ghost{background:transparent;color:#8b949e;border:1px solid #30363d}
+    button.btn-ghost:hover{color:#e6edf3;border-color:#484f58}
+    ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#0d1117}::-webkit-scrollbar-thumb{background:#30363d;border-radius:3px}
+    .tab-btn{color:#8b949e;border:1px solid transparent;cursor:pointer;padding:4px 12px;border-radius:6px;font-size:11px;font-family:inherit;transition:all .15s}
+    .tab-btn.active{color:#e6edf3;border-color:#30363d;background:#21262d}
+    .tab-btn:hover:not(.active){color:#e6edf3}
+    .status-pill{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;display:inline-block}
+    .pill-Evaluated{background:#1f6feb33;color:#58a6ff}.pill-Applied{background:#1a7f3733;color:#3fb950}
+    .pill-Interview{background:#9e6a0333;color:#d29922}.pill-Offer{background:#2ea04333;color:#56d364}
+    .pill-Rejected{background:#da363333;color:#f85149}.pill-Discarded,.pill-SKIP{background:#21262d;color:#8b949e}
+    .pill-Responded{background:#31366633;color:#8b949e}
+    .fit-strong{background:#0d4a1a;color:#56d364;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;display:inline-block}
+    .fit-good{background:#3a2e0a;color:#d29922;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;display:inline-block}
+    .fit-partial{background:#3a1e0a;color:#ffa657;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;display:inline-block}
+    .fit-weak{background:#21262d;color:#8b949e;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;display:inline-block}
+    .portal-pill{font-size:10px;padding:1px 7px;border-radius:10px;font-weight:600;display:inline-block}
+    .portal-greenhouse{background:#0d4a1a;color:#56d364}.portal-ashby{background:#1a2d5a;color:#79b8ff}
+    .portal-lever{background:#3a1a4a;color:#d2a8ff}.portal-workday{background:#4a2a0a;color:#ffa657}
+    .portal-remoteok{background:#1a3a1a;color:#a0e87a}.portal-remotive{background:#0d3a2a;color:#56d4a0}
+    .portal-himalayas{background:#2a1a3a;color:#c8a8ff}.portal-linkedin{background:#0a1e3a;color:#4a9eff}
+    .portal-wellfound{background:#2a0a1a;color:#ff7eb3}.portal-rss{background:#3a2a0a;color:#ffcc66}
+    .gmail-interview{color:#56d364}.gmail-offer{color:#d29922}.gmail-rejection{color:#f85149}.gmail-recruiter{color:#58a6ff}
+    .score-high{color:#3fb950}.score-mid{color:#d29922}.score-low{color:#f85149}
+    table{width:100%;border-collapse:collapse}th{text-align:left;color:#8b949e;padding:6px 8px;font-weight:500;font-size:11px}
+    td{padding:6px 8px;border-top:1px solid #21262d;font-size:12px}
+    tr:hover td{background:#161b22}
+    .overdue{border-left:3px solid #f85149}
+    .modal{display:none;position:fixed;inset:0;background:#0008;z-index:50;align-items:center;justify-content:center}
+    .modal.open{display:flex}
+    .modal-box{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:24px;width:480px;max-width:95vw}
   </style>
 </head>
 <body class="min-h-screen">
 
 <!-- Header -->
-<header class="border-b border-gray-800 px-6 py-4 flex items-center justify-between sticky top-0 z-10" style="background:#0d1117">
-  <div class="flex items-center gap-4">
-    <span class="text-lg font-bold text-white">Job Hunt</span>
-    <nav class="flex gap-1">
-      <button onclick="showTab('dashboard')" id="tab-dashboard" class="tab-btn active text-xs px-3 py-1 rounded">Dashboard</button>
-      <button onclick="showTab('inbox')"     id="tab-inbox"     class="tab-btn text-xs px-3 py-1 rounded">
-        Inbox <span id="inbox-badge" class="text-gray-500 text-xs ml-1"></span>
-      </button>
-      <button onclick="showTab('recs')"      id="tab-recs"      class="tab-btn text-xs px-3 py-1 rounded">
-        ⭐ Recommendations <span id="recs-badge" class="text-gray-500 text-xs ml-1"></span>
-      </button>
+<header class="border-b border-gray-800 px-5 py-3 flex items-center justify-between sticky top-0 z-40" style="background:#0d1117bb;backdrop-filter:blur(8px)">
+  <div class="flex items-center gap-3">
+    <span class="font-bold text-white">Job Hunt</span>
+    <nav class="flex gap-1 flex-wrap">
+      <button onclick="show('dashboard')"  id="tab-dashboard"  class="tab-btn active">Dashboard</button>
+      <button onclick="show('inbox')"      id="tab-inbox"      class="tab-btn">Inbox <span id="b-inbox"  class="text-gray-600"></span></button>
+      <button onclick="show('recs')"       id="tab-recs"       class="tab-btn">★ Picks <span id="b-recs"  class="text-gray-600"></span></button>
+      <button onclick="show('tracker')"   id="tab-tracker"    class="tab-btn">Tracker</button>
+      <button onclick="show('followups')" id="tab-followups"  class="tab-btn">Follow-ups <span id="b-fu" class="text-gray-600"></span></button>
+      <button onclick="show('contacts')"  id="tab-contacts"   class="tab-btn">CRM <span id="b-contacts" class="text-gray-600"></span></button>
+      <button onclick="show('gmail')"     id="tab-gmail"      class="tab-btn">Gmail <span id="b-gmail" class="text-gray-600"></span></button>
+      <button onclick="show('profile')"   id="tab-profile"    class="tab-btn">Profile</button>
     </nav>
   </div>
-  <div class="flex items-center gap-3">
-    <span id="last-updated" class="text-xs text-gray-600"></span>
-    <button onclick="loadAll()" class="text-xs px-3 py-1 rounded border border-gray-700 text-gray-400 hover:border-gray-500 hover:text-gray-200 transition">Refresh</button>
+  <div class="flex items-center gap-2">
+    <span id="ts" class="text-gray-700 text-xs"></span>
+    <button onclick="loadAll()" class="btn btn-ghost text-xs">Refresh</button>
   </div>
 </header>
 
-<!-- ══════════════ DASHBOARD ══════════════ -->
-<div id="view-dashboard" class="max-w-7xl mx-auto px-6 py-6 space-y-6">
-
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-    <div class="card p-4 text-center">
-      <div id="stat-total"      class="text-3xl font-bold text-white">—</div>
-      <div class="text-xs text-gray-500 mt-1">Applications</div>
-    </div>
-    <div class="card p-4 text-center">
-      <div id="stat-avg-score"  class="text-3xl font-bold text-yellow-400">—</div>
-      <div class="text-xs text-gray-500 mt-1">Avg Score</div>
-    </div>
-    <div class="card p-4 text-center">
-      <div id="stat-interviews" class="text-3xl font-bold text-blue-400">—</div>
-      <div class="text-xs text-gray-500 mt-1">Interviews</div>
-    </div>
-    <div class="card p-4 text-center">
-      <div id="stat-offers"     class="text-3xl font-bold text-green-400">—</div>
-      <div class="text-xs text-gray-500 mt-1">Offers</div>
-    </div>
+<!-- ═══ DASHBOARD ═══════════════════════════════════════════════════ -->
+<div id="view-dashboard" class="max-w-7xl mx-auto p-5 space-y-5">
+  <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+    <div class="card p-4 text-center"><div id="s-total"      class="text-2xl font-bold text-white">—</div><div class="text-xs text-gray-600 mt-1">Applications</div></div>
+    <div class="card p-4 text-center"><div id="s-score"      class="text-2xl font-bold text-yellow-400">—</div><div class="text-xs text-gray-600 mt-1">Avg Score</div></div>
+    <div class="card p-4 text-center"><div id="s-interview"  class="text-2xl font-bold text-blue-400">—</div><div class="text-xs text-gray-600 mt-1">Interviews</div></div>
+    <div class="card p-4 text-center"><div id="s-offer"      class="text-2xl font-bold text-green-400">—</div><div class="text-xs text-gray-600 mt-1">Offers</div></div>
+    <div class="card p-4 text-center"><div id="s-inbox"      class="text-2xl font-bold text-purple-400">—</div><div class="text-xs text-gray-600 mt-1">In Inbox</div></div>
   </div>
-
-  <div id="followup-banner" class="hidden card p-4 overdue-alert">
-    <div class="flex items-start gap-3">
-      <span class="text-red-400">!</span>
-      <div>
-        <div class="text-sm font-semibold text-red-400" id="followup-count"></div>
-        <div id="followup-list" class="mt-2 space-y-1"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
     <div class="lg:col-span-2 card p-4">
-      <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
-        <h2 class="text-sm font-semibold text-gray-300">Evaluated Applications</h2>
-        <div class="flex gap-2 flex-wrap">
-          <input id="filter-company" placeholder="Company…" class="w-32 text-xs" oninput="applyFilters()" />
-          <select id="filter-status" class="text-xs" onchange="applyFilters()">
-            <option value="">All statuses</option>
-            <option>Evaluated</option><option>Applied</option><option>Interview</option>
-            <option>Offer</option><option>Rejected</option><option>Discarded</option><option>SKIP</option>
-          </select>
-          <select id="filter-score" class="text-xs" onchange="applyFilters()">
-            <option value="">Any score</option>
-            <option value="4.5">4.5+</option><option value="4.0">4.0+</option><option value="3.5">3.5+</option>
-          </select>
-        </div>
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="font-semibold text-gray-300">Recent Applications</h2>
+        <button onclick="show('tracker')" class="text-xs text-blue-400 hover:underline">View all →</button>
       </div>
-      <div class="overflow-auto max-h-[520px]">
-        <table class="w-full text-xs">
-          <thead class="text-gray-500 sticky top-0" style="background:#0d1117">
-            <tr>
-              <th class="text-left py-1 px-2">#</th>
-              <th class="text-left py-1 px-2">Company</th>
-              <th class="text-left py-1 px-2">Role</th>
-              <th class="text-left py-1 px-2">Score</th>
-              <th class="text-left py-1 px-2">Status</th>
-              <th class="text-left py-1 px-2">Date</th>
-            </tr>
-          </thead>
-          <tbody id="apps-table" class="divide-y divide-gray-800"></tbody>
-        </table>
-        <div id="apps-empty" class="hidden text-center text-gray-600 py-10 text-xs">
-          No evaluated applications yet.<br>
-          Open Claude Code in this directory, paste a job URL from the Inbox.
-        </div>
-      </div>
+      <table><thead><tr><th>#</th><th>Company</th><th>Role</th><th>Score</th><th>Status</th><th>Date</th></tr></thead>
+      <tbody id="d-apps"></tbody></table>
+      <div id="d-apps-empty" class="hidden text-center text-gray-600 py-8 text-xs">No applications yet.<br>Open Claude Code in this directory and paste a job URL.</div>
     </div>
-
     <div class="space-y-4">
-      <div class="card p-4">
-        <h2 class="text-xs font-semibold text-gray-400 mb-3">By Status</h2>
-        <canvas id="status-chart" height="180"></canvas>
-      </div>
-      <div class="card p-4">
-        <h2 class="text-xs font-semibold text-gray-400 mb-3">Score Distribution</h2>
-        <canvas id="score-chart" height="110"></canvas>
-      </div>
-      <div class="card p-4">
-        <h2 class="text-xs font-semibold text-gray-400 mb-3">Skills Gap</h2>
-        <div id="skills-list" class="space-y-2 text-xs"></div>
-        <div id="skills-empty" class="text-gray-600 text-xs">No data yet — evaluate some jobs first.</div>
+      <div class="card p-4"><h2 class="text-xs text-gray-500 mb-3">By Status</h2><canvas id="c-status" height="170"></canvas></div>
+      <div class="card p-4"><h2 class="text-xs text-gray-500 mb-3">Skills Gap</h2>
+        <div id="d-skills" class="space-y-2"></div>
+        <div id="d-skills-empty" class="text-gray-600 text-xs">Evaluate jobs to track skill demand.</div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ══════════════ INBOX ══════════════ -->
-<div id="view-inbox" class="hidden max-w-7xl mx-auto px-6 py-6 space-y-4">
-
-  <div class="card p-4 flex flex-wrap items-center gap-3">
-    <input id="pipe-search"  placeholder="Search company or role…" class="flex-1 min-w-[180px] text-xs" oninput="applyInboxFilters()" />
-    <select id="pipe-fit"    class="text-xs" onchange="applyInboxFilters()">
-      <option value="">All fits</option>
-      <option value="4">Strong Match (4+)</option>
-      <option value="3">Good Match (3+)</option>
-      <option value="2">Partial Match (2+)</option>
-    </select>
-    <select id="pipe-portal" class="text-xs" onchange="applyInboxFilters()">
-      <option value="">All sources</option>
-      <option value="greenhouse">Greenhouse</option><option value="ashby">Ashby</option>
-      <option value="lever">Lever</option><option value="remoteok">RemoteOK</option>
-      <option value="remotive">Remotive</option><option value="himalayas">Himalayas</option>
-      <option value="linkedin">LinkedIn</option><option value="wellfound">Wellfound</option>
-      <option value="rss">RSS</option>
-    </select>
-    <select id="pipe-company" class="text-xs" onchange="applyInboxFilters()">
-      <option value="">All companies</option>
-    </select>
-    <label class="flex items-center gap-1 text-xs text-gray-400 cursor-pointer">
-      <input type="checkbox" id="pipe-hide-weak" onchange="applyInboxFilters()" class="w-3 h-3" />
-      Hide weak matches
-    </label>
-    <span id="pipe-count" class="text-xs text-gray-500 ml-auto"></span>
+<!-- ═══ INBOX ════════════════════════════════════════════════════════ -->
+<div id="view-inbox" class="hidden max-w-7xl mx-auto p-5 space-y-4">
+  <div class="card p-3 flex flex-wrap gap-2 items-center">
+    <input id="i-search"  placeholder="Search…" class="flex-1 min-w-[160px]" oninput="filterInbox()"/>
+    <select id="i-fit"    onchange="filterInbox()"><option value="">All fits</option><option value="4">Strong (4+)</option><option value="3">Good (3+)</option></select>
+    <select id="i-portal" onchange="filterInbox()"><option value="">All sources</option><option>greenhouse</option><option>ashby</option><option>lever</option><option>remoteok</option><option>linkedin</option><option>wellfound</option><option>rss</option></select>
+    <select id="i-company" onchange="filterInbox()"><option value="">All companies</option></select>
+    <label class="flex items-center gap-1 text-xs text-gray-500 cursor-pointer"><input type="checkbox" id="i-hide-weak" onchange="filterInbox()"> Hide weak</label>
+    <span id="i-count" class="text-xs text-gray-600 ml-auto"></span>
   </div>
+  <div id="i-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"></div>
+  <div id="i-empty" class="hidden text-center text-gray-600 py-16">No jobs. Run <code class="text-blue-400">npm run scan</code></div>
+</div>
 
-  <div id="pipe-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"></div>
-  <div id="pipe-empty" class="hidden text-center text-gray-600 py-16 text-sm">
-    No jobs found.<br><span class="text-xs">Run <code class="text-blue-400">npm run scan</code></span>
+<!-- ═══ RECOMMENDATIONS ══════════════════════════════════════════════ -->
+<div id="view-recs" class="hidden max-w-3xl mx-auto p-5 space-y-4">
+  <div class="card p-4"><h2 class="font-semibold text-white">Top Picks For You</h2>
+    <p class="text-xs text-gray-500 mt-1">Jobs scored ≥ 3.5 — partnership/BD/growth, Web3/AI domain, remote, senior.</p></div>
+  <div id="r-list" class="space-y-3"></div>
+  <div id="r-empty" class="hidden card p-8 text-center text-gray-600">No strong matches yet. Run <code class="text-blue-400">npm run scan</code></div>
+</div>
+
+<!-- ═══ TRACKER ══════════════════════════════════════════════════════ -->
+<div id="view-tracker" class="hidden max-w-7xl mx-auto p-5 space-y-4">
+  <div class="card p-3 flex flex-wrap gap-2 items-center">
+    <input id="t-company" placeholder="Company…" class="w-36" oninput="filterTracker()"/>
+    <select id="t-status" onchange="filterTracker()"><option value="">All statuses</option>
+      <option>Evaluated</option><option>Applied</option><option>Interview</option><option>Offer</option><option>Rejected</option><option>Discarded</option><option>SKIP</option></select>
+    <select id="t-score"  onchange="filterTracker()"><option value="">Any score</option><option value="4.5">4.5+</option><option value="4.0">4.0+</option><option value="3.5">3.5+</option></select>
+    <span id="t-count" class="text-xs text-gray-600 ml-auto"></span>
+  </div>
+  <div class="card overflow-auto">
+    <table><thead><tr><th>#</th><th>Company</th><th>Role</th><th>Score</th><th>Status</th><th>Date</th><th>Notes</th></tr></thead>
+    <tbody id="t-body"></tbody></table>
+    <div id="t-empty" class="hidden text-center text-gray-600 py-8 text-xs">No applications. Evaluate a job in Claude Code first.</div>
   </div>
 </div>
 
-<!-- ══════════════ RECOMMENDATIONS ══════════════ -->
-<div id="view-recs" class="hidden max-w-4xl mx-auto px-6 py-6 space-y-4">
+<!-- ═══ FOLLOW-UPS ═══════════════════════════════════════════════════ -->
+<div id="view-followups" class="hidden max-w-3xl mx-auto p-5 space-y-3">
+  <div class="card p-4"><h2 class="font-semibold text-white">Follow-up Manager</h2>
+    <p class="text-xs text-gray-500 mt-1">Auto-scheduled when you record an application. Mark done to keep the pipeline clean.</p></div>
+  <div id="fu-list" class="space-y-2"></div>
+  <div id="fu-empty" class="hidden card p-8 text-center text-gray-600">No pending follow-ups. You're on top of it.</div>
+</div>
 
-  <div class="card p-4 space-y-1">
-    <h2 class="text-sm font-semibold text-white">Top Recommendations for You</h2>
-    <p class="text-xs text-gray-500">Jobs scored ≥ 3.5 based on your profile — partnership/BD/growth, Web3/AI domain, remote, senior level.</p>
+<!-- ═══ CONTACTS / CRM ════════════════════════════════════════════════ -->
+<div id="view-contacts" class="hidden max-w-5xl mx-auto p-5 space-y-4">
+  <div class="flex items-center justify-between">
+    <div class="card p-4 flex-1 mr-4"><h2 class="font-semibold text-white">Contact CRM</h2>
+      <p class="text-xs text-gray-500 mt-1">Recruiters, hiring managers, warm contacts. Track outreach and follow-ups.</p></div>
+    <button onclick="openContactModal()" class="btn btn-primary">+ Add Contact</button>
   </div>
+  <div class="card overflow-auto">
+    <table><thead><tr><th>Name</th><th>Company</th><th>Title</th><th>Connection</th><th>Outreach</th><th>LinkedIn</th><th>Notes</th></tr></thead>
+    <tbody id="c-body"></tbody></table>
+    <div id="c-empty" class="hidden text-center text-gray-600 py-8 text-xs">No contacts yet. Add them after you identify hiring managers for target roles.</div>
+  </div>
+</div>
 
-  <div id="recs-list" class="space-y-3"></div>
-  <div id="recs-empty" class="hidden card p-6 text-center text-gray-600 text-sm">
-    No strong matches yet. Run <code class="text-blue-400">npm run scan</code> to pull fresh listings.
+<!-- ═══ GMAIL ════════════════════════════════════════════════════════ -->
+<div id="view-gmail" class="hidden max-w-4xl mx-auto p-5 space-y-4">
+  <div class="card p-4 space-y-2">
+    <h2 class="font-semibold text-white">Gmail Integration</h2>
+    <p class="text-xs text-gray-500">Auto-scans inbox for recruiter emails, interview invites, and rejections.</p>
+    <div class="flex gap-2 mt-2">
+      <code class="text-xs text-blue-400 bg-gray-900 px-3 py-1 rounded">npm run gmail:auth</code>
+      <span class="text-xs text-gray-600 self-center">→ one-time setup</span>
+      <code class="text-xs text-blue-400 bg-gray-900 px-3 py-1 rounded ml-4">npm run gmail</code>
+      <span class="text-xs text-gray-600 self-center">→ scan inbox</span>
+    </div>
+  </div>
+  <div id="g-list" class="space-y-2"></div>
+  <div id="g-empty" class="hidden card p-8 text-center text-gray-600 text-xs">
+    No Gmail threads yet.<br><br>
+    Setup: get credentials from Google Cloud Console → save as <code>config/gmail-credentials.json</code> → run <code class="text-blue-400">npm run gmail:auth</code> → run <code class="text-blue-400">npm run gmail</code>
+  </div>
+</div>
+
+<!-- ═══ PROFILE ══════════════════════════════════════════════════════ -->
+<div id="view-profile" class="hidden max-w-4xl mx-auto p-5 space-y-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="card p-5 space-y-3" id="p-info">
+      <h2 class="font-semibold text-white">Your Profile</h2>
+      <div id="p-fields" class="space-y-2 text-xs"></div>
+    </div>
+    <div class="card p-5 space-y-3">
+      <h2 class="font-semibold text-white">Target Roles</h2>
+      <div id="p-targets" class="space-y-1 text-xs"></div>
+    </div>
+  </div>
+  <div class="card p-5">
+    <h2 class="font-semibold text-white mb-3">CV Summary</h2>
+    <pre id="p-cv" class="text-xs text-gray-400 whitespace-pre-wrap overflow-auto max-h-64"></pre>
+  </div>
+</div>
+
+<!-- Add Contact Modal -->
+<div id="contact-modal" class="modal" onclick="if(event.target===this)closeContactModal()">
+  <div class="modal-box space-y-4">
+    <h3 class="font-semibold text-white">Add Contact</h3>
+    <div class="grid grid-cols-2 gap-3">
+      <div><label class="text-xs text-gray-500">Name *</label><input id="cm-name"    class="w-full mt-1" placeholder="Jane Doe"/></div>
+      <div><label class="text-xs text-gray-500">Company *</label><input id="cm-company" class="w-full mt-1" placeholder="Ripple"/></div>
+      <div><label class="text-xs text-gray-500">Title</label><input id="cm-title"    class="w-full mt-1" placeholder="Head of Partnerships"/></div>
+      <div><label class="text-xs text-gray-500">Email</label><input id="cm-email"    class="w-full mt-1" placeholder="jane@ripple.com"/></div>
+      <div class="col-span-2"><label class="text-xs text-gray-500">LinkedIn URL</label><input id="cm-linkedin" class="w-full mt-1" placeholder="https://linkedin.com/in/..."/></div>
+      <div class="col-span-2"><label class="text-xs text-gray-500">Notes</label><textarea id="cm-notes" class="w-full mt-1 h-16 resize-none" placeholder="How you found them, context..."></textarea></div>
+    </div>
+    <div class="flex justify-end gap-2">
+      <button onclick="closeContactModal()" class="btn btn-ghost">Cancel</button>
+      <button onclick="saveContact()" class="btn btn-primary">Save Contact</button>
+    </div>
   </div>
 </div>
 
 <script>
-let allApps = [], allPipelineJobs = [], statusChart = null, scoreChart = null;
+let allApps=[], allInbox=[], allFollowups=[], allContacts=[], statusChart=null;
 
 // ── Tabs ──────────────────────────────────────────────────────────────
 
-function showTab(tab) {
-  ['dashboard','inbox','recs'].forEach(t => {
-    document.getElementById('view-' + t).classList.toggle('hidden', t !== tab);
-    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+const TABS=['dashboard','inbox','recs','tracker','followups','contacts','gmail','profile'];
+function show(tab){
+  TABS.forEach(t=>{
+    document.getElementById('view-'+t)?.classList.toggle('hidden',t!==tab);
+    document.getElementById('tab-'+t)?.classList.toggle('active',t===tab);
   });
-  if (tab === 'inbox' && !allPipelineJobs.length) loadPipeline();
-  if (tab === 'recs') loadRecs();
+  if(tab==='inbox'&&!allInbox.length) loadInbox();
+  if(tab==='recs')    loadRecs();
+  if(tab==='followups') loadFollowups();
+  if(tab==='contacts')  loadContacts();
+  if(tab==='gmail')     loadGmail();
+  if(tab==='profile')   loadProfile();
 }
 
 // ── Load all ──────────────────────────────────────────────────────────
 
-async function loadAll() {
-  await Promise.all([loadStats(), loadApps(), loadFollowups(), loadSkillsGap(), loadPipeline()]);
-  document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString();
+async function loadAll(){
+  await Promise.all([loadStats(),loadApps(),loadInbox(),loadFollowups()]);
+  document.getElementById('ts').textContent='Updated '+new Date().toLocaleTimeString();
 }
 
 // ── Dashboard ─────────────────────────────────────────────────────────
 
-async function loadStats() {
-  const r = await fetch('/api/stats').catch(() => null);
-  if (!r?.ok) return;
-  const d = await r.json();
-  document.getElementById('stat-total').textContent       = d.total ?? 0;
-  document.getElementById('stat-avg-score').textContent   = d.avgScore ? d.avgScore.toFixed(1) : '—';
-  document.getElementById('stat-interviews').textContent  = d.byStatus?.find(s => s.status === 'Interview')?.count ?? 0;
-  document.getElementById('stat-offers').textContent      = d.byStatus?.find(s => s.status === 'Offer')?.count ?? 0;
-  renderStatusChart(d.byStatus ?? []);
+async function loadStats(){
+  const r=await fetch('/api/stats').catch(()=>null);
+  if(!r?.ok) return;
+  const d=await r.json();
+  document.getElementById('s-total').textContent=d.total??0;
+  document.getElementById('s-score').textContent=d.avgScore?d.avgScore.toFixed(1):'—';
+  document.getElementById('s-interview').textContent=d.byStatus?.find(s=>s.status==='Interview')?.count??0;
+  document.getElementById('s-offer').textContent=d.byStatus?.find(s=>s.status==='Offer')?.count??0;
+  renderStatusChart(d.byStatus??[]);
+  loadSkills();
 }
 
-async function loadApps() {
-  const r = await fetch('/api/applications').catch(() => null);
-  if (!r?.ok) return;
-  allApps = await r.json();
-  applyFilters();
-  renderScoreChart(allApps);
+async function loadApps(){
+  const r=await fetch('/api/applications?limit=20').catch(()=>null);
+  if(!r?.ok) return;
+  allApps=await r.json();
+  renderDashApps(allApps.slice(0,8));
+  renderTracker(allApps);
 }
 
-async function loadFollowups() {
-  const r = await fetch('/api/followups').catch(() => null);
-  if (!r?.ok) return;
-  const data = await r.json();
-  const banner = document.getElementById('followup-banner');
-  if (!data.length) { banner.classList.add('hidden'); return; }
-  banner.classList.remove('hidden');
-  document.getElementById('followup-count').textContent = `${data.length} overdue follow-up${data.length > 1 ? 's' : ''}`;
-  document.getElementById('followup-list').innerHTML = data.map(f =>
-    `<div class="text-xs text-gray-400">${esc(f.company)} — ${esc(f.role)} <span class="text-red-500">(${f.type}, due ${f.due_date})</span></div>`
-  ).join('');
+function renderDashApps(apps){
+  const tb=document.getElementById('d-apps'), em=document.getElementById('d-apps-empty');
+  if(!apps.length){tb.innerHTML='';em.classList.remove('hidden');return;}
+  em.classList.add('hidden');
+  tb.innerHTML=apps.map(a=>appRow(a)).join('');
 }
 
-async function loadSkillsGap() {
-  const r = await fetch('/api/skills-gap').catch(() => null);
-  if (!r?.ok) return;
-  const data = await r.json();
-  const list = document.getElementById('skills-list');
-  const empty = document.getElementById('skills-empty');
-  if (!data.length) { list.innerHTML = ''; empty.style.display = ''; return; }
-  empty.style.display = 'none';
-  list.innerHTML = data.map(s => {
-    const pct = Math.round(s.match_rate * 100);
-    const col = pct >= 75 ? '#3fb950' : pct >= 40 ? '#d29922' : '#f85149';
-    return `<div>
-      <div class="flex justify-between text-gray-400"><span>${esc(s.skill)}</span><span style="color:${col}">${pct}% match</span></div>
-      <div class="w-full h-1 bg-gray-800 rounded mt-1"><div class="h-1 rounded" style="width:${pct}%;background:${col}"></div></div>
-    </div>`;
+function appRow(a){
+  const sc=a.score>=4.5?'score-high':a.score>=3.5?'score-mid':'score-low';
+  const pill='pill-'+(a.status||'Evaluated');
+  return `<tr><td class="text-gray-600">${a.num}</td><td class="font-medium">${esc(a.company)}</td>
+    <td class="text-gray-400 max-w-[200px] truncate" title="${esc(a.role)}">${esc(a.role)}</td>
+    <td class="font-mono ${sc}">${a.score?a.score.toFixed(1):'—'}</td>
+    <td><span class="status-pill ${pill}">${a.status}</span></td>
+    <td class="text-gray-600">${a.date}</td></tr>`;
+}
+
+async function loadSkills(){
+  const r=await fetch('/api/skills-gap').catch(()=>null);
+  if(!r?.ok) return;
+  const data=await r.json();
+  const el=document.getElementById('d-skills'),em=document.getElementById('d-skills-empty');
+  if(!data.length){el.innerHTML='';em.style.display='';return;}
+  em.style.display='none';
+  el.innerHTML=data.map(s=>{
+    const p=Math.round(s.match_rate*100),c=p>=75?'#3fb950':p>=40?'#d29922':'#f85149';
+    return `<div><div class="flex justify-between text-gray-400 text-xs"><span>${esc(s.skill)}</span><span style="color:${c}">${p}%</span></div>
+      <div class="w-full h-1 bg-gray-800 rounded mt-1"><div class="h-1 rounded" style="width:${p}%;background:${c}"></div></div></div>`;
   }).join('');
 }
 
-function applyFilters() {
-  const co = document.getElementById('filter-company').value.toLowerCase();
-  const st = document.getElementById('filter-status').value;
-  const ms = parseFloat(document.getElementById('filter-score').value || '0');
-  renderAppsTable(allApps.filter(a =>
-    (!co || a.company.toLowerCase().includes(co)) &&
-    (!st || a.status === st) &&
-    (!ms || (a.score ?? 0) >= ms)
-  ));
-}
-
-function renderAppsTable(apps) {
-  const tbody = document.getElementById('apps-table');
-  const empty = document.getElementById('apps-empty');
-  if (!apps.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
-  empty.classList.add('hidden');
-  tbody.innerHTML = apps.map(a => {
-    const sc   = a.score >= 4.5 ? 'score-high' : a.score >= 3.5 ? 'score-mid' : 'score-low';
-    const pill = 'pill-' + (a.status || 'Evaluated').replace(/\s/g, '');
-    const link = a.report_path
-      ? `<a href="/api/report/${encodeURIComponent(a.report_path)}" target="_blank" class="text-blue-500 hover:underline">${a.num}</a>`
-      : `<span class="text-gray-600">${a.num}</span>`;
-    return `<tr class="hover:bg-gray-800/30 transition-colors">
-      <td class="py-2 px-2 text-gray-500">${link}</td>
-      <td class="py-2 px-2 font-medium">${esc(a.company)}</td>
-      <td class="py-2 px-2 text-gray-300 max-w-[180px] truncate" title="${esc(a.role)}">${esc(a.role)}</td>
-      <td class="py-2 px-2 ${sc} font-mono">${a.score ? a.score.toFixed(1) : '—'}</td>
-      <td class="py-2 px-2"><span class="status-pill ${pill}">${a.status}</span></td>
-      <td class="py-2 px-2 text-gray-600">${a.date}</td>
-    </tr>`;
-  }).join('');
-}
-
-function renderStatusChart(byStatus) {
-  if (statusChart) statusChart.destroy();
-  statusChart = new Chart(document.getElementById('status-chart'), {
-    type: 'doughnut',
-    data: { labels: byStatus.map(s => s.status), datasets: [{ data: byStatus.map(s => s.count), backgroundColor: ['#58a6ff','#3fb950','#d29922','#56d364','#f85149','#484f58','#8b949e','#bc8cff'], borderWidth: 0 }] },
-    options: { plugins: { legend: { position: 'bottom', labels: { color: '#8b949e', font: { size: 10 }, boxWidth: 10 } } }, cutout: '60%' },
-  });
-}
-
-function renderScoreChart(apps) {
-  const b = { '4.5-5': 0, '4-4.4': 0, '3.5-3.9': 0, '<3.5': 0 };
-  apps.forEach(a => { if (!a.score) return; if (a.score>=4.5) b['4.5-5']++; else if (a.score>=4) b['4-4.4']++; else if (a.score>=3.5) b['3.5-3.9']++; else b['<3.5']++; });
-  if (scoreChart) scoreChart.destroy();
-  scoreChart = new Chart(document.getElementById('score-chart'), {
-    type: 'bar',
-    data: { labels: Object.keys(b), datasets: [{ data: Object.values(b), backgroundColor: ['#3fb950','#56d364','#d29922','#f85149'], borderRadius: 4, borderWidth: 0 }] },
-    options: { plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#8b949e', font: { size: 10 } }, grid: { color: '#21262d' } }, y: { ticks: { color: '#8b949e', font: { size: 10 }, stepSize: 1 }, grid: { color: '#21262d' } } } },
+function renderStatusChart(d){
+  if(statusChart) statusChart.destroy();
+  if(!d.length) return;
+  statusChart=new Chart(document.getElementById('c-status'),{
+    type:'doughnut',
+    data:{labels:d.map(s=>s.status),datasets:[{data:d.map(s=>s.count),backgroundColor:['#58a6ff','#3fb950','#d29922','#56d364','#f85149','#484f58','#8b949e'],borderWidth:0}]},
+    options:{plugins:{legend:{position:'bottom',labels:{color:'#8b949e',font:{size:10},boxWidth:10}}},cutout:'65%'},
   });
 }
 
 // ── Inbox ─────────────────────────────────────────────────────────────
 
-async function loadPipeline() {
-  const r = await fetch('/api/pipeline').catch(() => null);
-  if (!r?.ok) return;
-  allPipelineJobs = await r.json();
-
-  const pending = allPipelineJobs.filter(j => !j.checked).length;
-  document.getElementById('inbox-badge').textContent = pending ? `(${pending})` : '';
-
-  const companies = [...new Set(allPipelineJobs.map(j => j.company))].sort();
-  const sel = document.getElementById('pipe-company');
-  sel.innerHTML = '<option value="">All companies</option>' + companies.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
-
-  applyInboxFilters();
+async function loadInbox(){
+  const r=await fetch('/api/pipeline').catch(()=>null);
+  if(!r?.ok) return;
+  allInbox=await r.json();
+  const pending=allInbox.filter(j=>!j.checked).length;
+  document.getElementById('b-inbox').textContent=pending?`(${pending})`:'';
+  document.getElementById('s-inbox').textContent=pending;
+  const cos=[...new Set(allInbox.map(j=>j.company))].sort();
+  const sel=document.getElementById('i-company');
+  sel.innerHTML='<option value="">All companies</option>'+cos.map(c=>`<option>${esc(c)}</option>`).join('');
+  filterInbox();
 }
 
-function applyInboxFilters() {
-  const search  = document.getElementById('pipe-search').value.toLowerCase();
-  const fit     = parseFloat(document.getElementById('pipe-fit').value || '0');
-  const portal  = document.getElementById('pipe-portal').value;
-  const company = document.getElementById('pipe-company').value;
-  const hideWeak = document.getElementById('pipe-hide-weak').checked;
-
-  const filtered = allPipelineJobs.filter(j =>
-    (!search  || j.company.toLowerCase().includes(search) || j.role.toLowerCase().includes(search)) &&
-    (!fit     || j.fit_score >= fit) &&
-    (!portal  || j.portal === portal) &&
-    (!company || j.company === company) &&
-    (!hideWeak || j.fit_score >= 2.0)
+function filterInbox(){
+  const s=document.getElementById('i-search').value.toLowerCase();
+  const f=parseFloat(document.getElementById('i-fit').value||'0');
+  const p=document.getElementById('i-portal').value;
+  const c=document.getElementById('i-company').value;
+  const h=document.getElementById('i-hide-weak').checked;
+  const filtered=allInbox.filter(j=>
+    (!s||(j.company+' '+j.role).toLowerCase().includes(s))&&
+    (!f||(j.fit_score??0)>=f)&&(!p||j.portal===p)&&(!c||j.company===c)&&(!h||(j.fit_score??0)>=2)
   );
-
-  renderInboxGrid(filtered);
+  document.getElementById('i-count').textContent=filtered.length+' jobs';
+  const grid=document.getElementById('i-grid'),em=document.getElementById('i-empty');
+  if(!filtered.length){grid.innerHTML='';em.classList.remove('hidden');return;}
+  em.classList.add('hidden');
+  grid.innerHTML=filtered.map(j=>inboxCard(j)).join('');
 }
 
-function renderInboxGrid(jobs) {
-  const grid  = document.getElementById('pipe-grid');
-  const empty = document.getElementById('pipe-empty');
-  document.getElementById('pipe-count').textContent = `${jobs.length} job${jobs.length !== 1 ? 's' : ''}`;
-
-  if (!jobs.length) { grid.innerHTML = ''; empty.classList.remove('hidden'); return; }
-  empty.classList.add('hidden');
-
-  grid.innerHTML = jobs.map(j => jobCard(j, false)).join('');
-}
-
-function jobCard(j, compact) {
-  const portalCls = 'portal-pill portal-' + (j.portal ?? '');
-  const fitCls    = fitClass(j.fit_label);
-  const stars     = fitStars(j.fit_score);
-  const opacity   = j.checked ? 'opacity-40' : '';
-  const reasons   = (j.fit_reasons ?? []).slice(0, 2).map(r => `<li>${esc(r)}</li>`).join('');
-
-  return `<div class="card p-4 flex flex-col gap-2 transition-colors ${opacity} ${compact ? 'rec-card' : ''}">
+function inboxCard(j){
+  const fc=fitClass(j.fit_label),stars=fitStars(j.fit_score??0);
+  const pc='portal-pill portal-'+(j.portal??'');
+  const op=j.checked?'opacity-40':'';
+  const reasons=(j.fit_reasons??[]).slice(0,2).map(r=>`<li>${esc(r)}</li>`).join('');
+  return `<div class="card p-4 flex flex-col gap-2 ${op}">
     <div class="flex items-start justify-between gap-2">
-      <div class="flex-1 min-w-0">
-        <div class="font-semibold text-sm text-white truncate" title="${esc(j.company)}">${esc(j.company)}</div>
-        <div class="text-xs text-gray-400 mt-0.5 leading-snug">${esc(j.role)}</div>
-      </div>
-      <span class="portal-pill ${portalCls} shrink-0">${j.portal ?? ''}</span>
+      <div class="min-w-0"><div class="font-semibold text-white truncate">${esc(j.company)}</div>
+        <div class="text-xs text-gray-400 mt-0.5">${esc(j.role)}</div></div>
+      <span class="${pc}">${j.portal??''}</span>
     </div>
-
-    <!-- Fit score -->
     <div class="flex items-center gap-2">
-      <span class="stars text-sm" title="Fit: ${j.fit_score}/5">${stars}</span>
-      <span class="text-xs px-2 py-0.5 rounded-full font-semibold ${fitCls}">${j.fit_label}</span>
-      <span class="text-xs text-gray-600 font-mono">${j.fit_score.toFixed(1)}/5</span>
+      <span class="text-sm">${stars}</span>
+      <span class="${fc}">${j.fit_label??'—'}</span>
+      <span class="text-gray-600 font-mono text-xs">${(j.fit_score??0).toFixed(1)}/5</span>
     </div>
-
-    ${reasons ? `<ul class="text-xs text-gray-500 list-disc list-inside space-y-0.5">${reasons}</ul>` : ''}
-    ${j.skip_reason ? `<div class="text-xs text-red-400 italic">${esc(j.skip_reason)}</div>` : ''}
-    ${j.location ? `<div class="text-xs text-gray-600">${esc(j.location)}</div>` : ''}
-
-    <div class="flex items-center gap-2 mt-auto pt-2 border-t border-gray-800">
-      <a href="${esc(j.url)}" target="_blank" rel="noopener" class="text-xs text-blue-400 hover:underline flex-1 truncate">${esc(j.url)}</a>
-      <button onclick="navigator.clipboard.writeText('${esc(j.url)}')" class="text-xs text-gray-600 hover:text-gray-300 shrink-0">copy</button>
+    ${reasons?`<ul class="text-xs text-gray-500 list-disc list-inside space-y-0.5">${reasons}</ul>`:''}
+    ${j.location?`<div class="text-xs text-gray-600">${esc(j.location)}</div>`:''}
+    <div class="flex gap-2 mt-auto pt-2 border-t border-gray-800">
+      <a href="${esc(j.url)}" target="_blank" class="text-xs text-blue-400 hover:underline flex-1 truncate">${esc(j.url)}</a>
+      <button onclick="navigator.clipboard.writeText('${esc(j.url)}')" class="text-xs text-gray-600 hover:text-gray-300">copy</button>
     </div>
   </div>`;
 }
 
-// ── Recommendations ───────────────────────────────────────────────────
+// ── Recommendations ────────────────────────────────────────────────────
 
-async function loadRecs() {
-  const r = await fetch('/api/recommendations').catch(() => null);
-  if (!r?.ok) return;
-  const data = await r.json();
-
-  document.getElementById('recs-badge').textContent = data.length ? `(${data.length})` : '';
-
-  const list  = document.getElementById('recs-list');
-  const empty = document.getElementById('recs-empty');
-
-  if (!data.length) { list.innerHTML = ''; empty.classList.remove('hidden'); return; }
-  empty.classList.add('hidden');
-
-  list.innerHTML = data.map((j, i) => `
-    <div class="card p-5 ${j.fit_score >= 4 ? 'rec-card' : 'rec-card rec-card-good'} flex flex-col gap-3">
+async function loadRecs(){
+  const r=await fetch('/api/recommendations').catch(()=>null);
+  if(!r?.ok) return;
+  const data=await r.json();
+  document.getElementById('b-recs').textContent=data.length?`(${data.length})`:'';
+  const el=document.getElementById('r-list'),em=document.getElementById('r-empty');
+  if(!data.length){el.innerHTML='';em.classList.remove('hidden');return;}
+  em.classList.add('hidden');
+  el.innerHTML=data.map((j,i)=>`
+    <div class="card p-5 flex flex-col gap-3" style="border-left:3px solid ${j.fit_score>=4?'#3fb950':'#d29922'}">
       <div class="flex items-start gap-3">
-        <div class="text-2xl font-bold text-gray-700 w-8 shrink-0">${i + 1}</div>
+        <div class="text-2xl font-bold text-gray-700 w-7 shrink-0">${i+1}</div>
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 flex-wrap">
             <span class="font-bold text-white">${esc(j.company)}</span>
-            <span class="portal-pill portal-${j.portal ?? ''}">${j.portal ?? ''}</span>
+            <span class="portal-pill portal-${j.portal??''}">${j.portal??''}</span>
           </div>
-          <div class="text-sm text-gray-300 mt-0.5">${esc(j.role)}</div>
-          ${j.location ? `<div class="text-xs text-gray-600 mt-0.5">${esc(j.location)}</div>` : ''}
+          <div class="text-gray-300 mt-0.5">${esc(j.role)}</div>
+          ${j.location?`<div class="text-xs text-gray-600 mt-0.5">${esc(j.location)}</div>`:''}
         </div>
         <div class="text-right shrink-0">
-          <div class="stars text-xl">${fitStars(j.fit_score)}</div>
-          <div class="text-xs text-gray-500 mt-0.5">${j.fit_score.toFixed(1)} / 5</div>
-          <span class="text-xs px-2 py-0.5 rounded-full font-semibold ${fitClass(j.fit_label)} mt-1 inline-block">${j.fit_label}</span>
+          <div class="text-lg">${fitStars(j.fit_score)}</div>
+          <div class="text-xs text-gray-500">${j.fit_score.toFixed(1)}/5</div>
+          <span class="${fitClass(j.fit_label)} mt-1">${j.fit_label}</span>
         </div>
       </div>
-
-      ${j.fit_reasons?.length ? `
-        <div>
-          <div class="text-xs text-gray-500 font-semibold mb-1">Why this fits you:</div>
-          <ul class="text-xs text-gray-400 list-disc list-inside space-y-0.5">
-            ${j.fit_reasons.map(r => `<li>${esc(r)}</li>`).join('')}
-          </ul>
-        </div>` : ''}
-
-      <div class="flex items-center gap-3 pt-2 border-t border-gray-800">
-        <a href="${esc(j.url)}" target="_blank" rel="noopener"
-           class="text-xs px-3 py-1.5 rounded bg-blue-900/40 text-blue-400 hover:bg-blue-900/70 transition font-semibold">
-          View Job →
-        </a>
-        <button onclick="navigator.clipboard.writeText('${esc(j.url)}'); this.textContent='Copied!'; setTimeout(()=>this.textContent='Copy URL',1500)"
-                class="text-xs px-3 py-1.5 rounded border border-gray-700 text-gray-400 hover:border-gray-500 transition">
-          Copy URL
-        </button>
-        <span class="text-xs text-gray-600 ml-auto">Paste URL in Claude Code to evaluate</span>
+      ${j.fit_reasons?.length?`<ul class="text-xs text-gray-500 list-disc list-inside space-y-0.5">${j.fit_reasons.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`:''}
+      <div class="flex gap-2 pt-2 border-t border-gray-800">
+        <a href="${esc(j.url)}" target="_blank" class="btn btn-primary text-xs">View Job →</a>
+        <button onclick="navigator.clipboard.writeText('${esc(j.url)}');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy URL',1500)" class="btn btn-ghost text-xs">Copy URL</button>
+        <span class="text-xs text-gray-700 self-center ml-auto">Paste in Claude Code to evaluate</span>
       </div>
+    </div>`).join('');
+}
+
+// ── Tracker ────────────────────────────────────────────────────────────
+
+function filterTracker(){
+  const co=document.getElementById('t-company').value.toLowerCase();
+  const st=document.getElementById('t-status').value;
+  const ms=parseFloat(document.getElementById('t-score').value||'0');
+  renderTracker(allApps.filter(a=>(!co||a.company.toLowerCase().includes(co))&&(!st||a.status===st)&&(!ms||(a.score??0)>=ms)));
+}
+
+function renderTracker(apps){
+  const tb=document.getElementById('t-body'),em=document.getElementById('t-empty');
+  document.getElementById('t-count').textContent=apps.length+' applications';
+  if(!apps.length){tb.innerHTML='';em.classList.remove('hidden');return;}
+  em.classList.add('hidden');
+  tb.innerHTML=apps.map(a=>{
+    const sc=a.score>=4.5?'score-high':a.score>=3.5?'score-mid':'score-low';
+    const pill='pill-'+(a.status||'Evaluated');
+    return `<tr>
+      <td class="text-gray-600">${a.num}</td>
+      <td class="font-medium">${esc(a.company)}</td>
+      <td class="text-gray-400 max-w-[220px] truncate" title="${esc(a.role)}">${esc(a.role)}</td>
+      <td class="font-mono ${sc}">${a.score?a.score.toFixed(1):'—'}</td>
+      <td><span class="status-pill ${pill}">${a.status}</span></td>
+      <td class="text-gray-600">${a.date}</td>
+      <td class="text-gray-600 max-w-[160px] truncate" title="${esc(a.notes??'')}">${esc(a.notes??'')}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Follow-ups ──────────────────────────────────────────────────────────
+
+async function loadFollowups(){
+  const r=await fetch('/api/followups').catch(()=>null);
+  if(!r?.ok) return;
+  allFollowups=await r.json();
+  const overdue=allFollowups.filter(f=>f.due_date<today()).length;
+  document.getElementById('b-fu').textContent=overdue?`(${overdue}!)`:(allFollowups.length?`(${allFollowups.length})`:'');
+  renderFollowups();
+}
+
+function renderFollowups(){
+  const el=document.getElementById('fu-list'),em=document.getElementById('fu-empty');
+  if(!allFollowups.length){el.innerHTML='';em.classList.remove('hidden');return;}
+  em.classList.add('hidden');
+  const sorted=[...allFollowups].sort((a,b)=>a.due_date.localeCompare(b.due_date));
+  el.innerHTML=sorted.map(f=>{
+    const od=f.due_date<today(),td=f.due_date===today();
+    const badge=od?'text-red-400':td?'text-yellow-400':'text-gray-500';
+    const label=od?'OVERDUE':td?'TODAY':f.due_date;
+    return `<div class="card p-4 flex items-center gap-4 ${od?'overdue':''}">
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="font-semibold text-white">${esc(f.company)}</span>
+          <span class="status-pill pill-${esc(f.app_status)}">${esc(f.app_status)}</span>
+        </div>
+        <div class="text-xs text-gray-400 mt-0.5">${esc(f.role)}</div>
+        <div class="text-xs text-gray-600 mt-1">${esc(f.type)} · <span class="${badge} font-semibold">${label}</span></div>
+        ${f.notes?`<div class="text-xs text-gray-600 mt-0.5">${esc(f.notes)}</div>`:''}
+      </div>
+      <button onclick="markFollowupDone(${f.id},this)" class="btn btn-ghost text-xs shrink-0">✓ Done</button>
+    </div>`;
+  }).join('');
+}
+
+async function markFollowupDone(id,btn){
+  await fetch('/api/followups/'+id+'/complete',{method:'POST'});
+  btn.closest('.card').style.opacity='0.3';
+  setTimeout(()=>{allFollowups=allFollowups.filter(f=>f.id!==id);renderFollowups();},400);
+}
+
+// ── Contacts ──────────────────────────────────────────────────────────
+
+async function loadContacts(){
+  const r=await fetch('/api/contacts').catch(()=>null);
+  if(!r?.ok) return;
+  allContacts=await r.json();
+  document.getElementById('b-contacts').textContent=allContacts.length?`(${allContacts.length})`:'';
+  renderContacts();
+}
+
+function renderContacts(){
+  const tb=document.getElementById('c-body'),em=document.getElementById('c-empty');
+  if(!allContacts.length){tb.innerHTML='';em.classList.remove('hidden');return;}
+  em.classList.add('hidden');
+  tb.innerHTML=allContacts.map(c=>`<tr>
+    <td class="font-medium">${esc(c.name)}</td>
+    <td>${esc(c.company)}</td>
+    <td class="text-gray-400">${esc(c.title??'')}</td>
+    <td class="text-gray-600">${esc(c.connection??'none')}</td>
+    <td>${c.outreach_sent?`<span class="text-green-400 text-xs">✓ Sent ${c.outreach_date??''}</span>`:'<span class="text-gray-600 text-xs">Not sent</span>'}</td>
+    <td>${c.linkedin_url?`<a href="${esc(c.linkedin_url)}" target="_blank" class="text-blue-400 hover:underline text-xs">LinkedIn</a>`:''}</td>
+    <td class="text-gray-600 max-w-[150px] truncate text-xs" title="${esc(c.notes??'')}">${esc(c.notes??'')}</td>
+  </tr>`).join('');
+}
+
+function openContactModal(){document.getElementById('contact-modal').classList.add('open');}
+function closeContactModal(){document.getElementById('contact-modal').classList.remove('open');['cm-name','cm-company','cm-title','cm-email','cm-linkedin','cm-notes'].forEach(id=>document.getElementById(id).value='');}
+
+async function saveContact(){
+  const name=document.getElementById('cm-name').value.trim();
+  const company=document.getElementById('cm-company').value.trim();
+  if(!name||!company){alert('Name and Company are required.');return;}
+  await fetch('/api/contacts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    name,company,title:document.getElementById('cm-title').value||undefined,
+    email:document.getElementById('cm-email').value||undefined,
+    linkedin_url:document.getElementById('cm-linkedin').value||undefined,
+    notes:document.getElementById('cm-notes').value||undefined,
+  })});
+  closeContactModal();
+  await loadContacts();
+}
+
+// ── Gmail ─────────────────────────────────────────────────────────────
+
+async function loadGmail(){
+  const r=await fetch('/api/gmail').catch(()=>null);
+  if(!r?.ok) return;
+  const data=await r.json();
+  document.getElementById('b-gmail').textContent=data.length?`(${data.length})`:'';
+  const el=document.getElementById('g-list'),em=document.getElementById('g-empty');
+  if(!data.length){el.innerHTML='';em.classList.remove('hidden');return;}
+  em.classList.add('hidden');
+  const icons={interview:'📅',offer:'🎉',rejection:'❌',recruiter:'📩',other:'📧'};
+  el.innerHTML=data.map(t=>`<div class="card p-4 flex items-start gap-3">
+    <span class="text-xl shrink-0">${icons[t.label]??'📧'}</span>
+    <div class="flex-1 min-w-0">
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="font-medium text-white">${esc(t.from_name||t.from_email)}</span>
+        <span class="gmail-${t.label} text-xs font-semibold uppercase">${t.label}</span>
+        ${t.company?`<span class="text-gray-600 text-xs">→ ${esc(t.company)}</span>`:''}
+      </div>
+      <div class="text-xs text-gray-400 mt-0.5">${esc(t.subject)}</div>
+      <div class="text-xs text-gray-600 mt-0.5 truncate">${esc(t.snippet)}</div>
     </div>
-  `).join('');
+    <div class="text-xs text-gray-700 shrink-0">${t.date?new Date(t.date).toLocaleDateString():''}</div>
+  </div>`).join('');
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────
+// ── Profile ────────────────────────────────────────────────────────────
 
-function fitStars(score) {
-  const full  = Math.floor(score);
-  const half  = score - full >= 0.5 ? 1 : 0;
-  const empty = 5 - full - half;
-  const col   = score >= 4 ? '#3fb950' : score >= 3 ? '#d29922' : '#8b949e';
-  return `<span style="color:${col}">${'★'.repeat(full)}${'⯨'.repeat(half)}${'☆'.repeat(empty)}</span>`;
+async function loadProfile(){
+  const r=await fetch('/api/profile').catch(()=>null);
+  if(!r?.ok) return;
+  const {cv,profile}=await r.json();
+  if(profile?.candidate){
+    const c=profile.candidate;
+    document.getElementById('p-fields').innerHTML=[
+      ['Name',c.name],['Email',c.email],['Location',c.location],['Timezone',c.timezone],
+      ['LinkedIn',c.linkedin?`<a href="${esc(c.linkedin)}" target="_blank" class="text-blue-400">${esc(c.linkedin)}</a>`:null],
+      ['Portfolio',c.portfolio?`<a href="${esc(c.portfolio)}" target="_blank" class="text-blue-400">${esc(c.portfolio)}</a>`:null],
+    ].filter(([,v])=>v).map(([k,v])=>`<div class="flex gap-2"><span class="text-gray-600 w-20 shrink-0">${k}</span><span class="text-gray-300">${v}</span></div>`).join('');
+  }
+  if(profile?.target){
+    const t=profile.target;
+    document.getElementById('p-targets').innerHTML=[
+      ...(t.roles??[]).map(r=>`<div class="text-gray-300">→ ${esc(r)}</div>`),
+      `<div class="mt-2 text-gray-600">Remote: ${esc(t.remote??'')}</div>`,
+      `<div class="text-gray-600">Seniority: ${esc(t.seniority??'')}</div>`,
+      profile.compensation?`<div class="mt-2 text-gray-500">Salary target: $${(profile.compensation.base_target/1000).toFixed(0)}k</div>`:'',
+    ].join('');
+  }
+  if(cv) document.getElementById('p-cv').textContent=cv.slice(0,2000)+(cv.length>2000?'\n…(truncated)':'');
 }
 
-function fitClass(label) {
-  return { 'Strong Match': 'fit-strong', 'Good Match': 'fit-good', 'Partial Match': 'fit-partial', 'Weak Match': 'fit-weak' }[label] ?? 'fit-weak';
-}
+// ── Helpers ────────────────────────────────────────────────────────────
 
-function esc(s) {
-  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+function fitStars(s){const f=Math.floor(s),h=s-f>=0.5?1:0,e=5-f-h,c=s>=4?'#3fb950':s>=3?'#d29922':'#8b949e';return `<span style="color:${c}">${'★'.repeat(f)}${'⯨'.repeat(h)}${'☆'.repeat(e)}</span>`;}
+function fitClass(l){return {'Strong Match':'fit-strong','Good Match':'fit-good','Partial Match':'fit-partial','Weak Match':'fit-weak'}[l]??'fit-weak';}
+function today(){return new Date().toISOString().split('T')[0];}
+function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 loadAll();
 </script>
