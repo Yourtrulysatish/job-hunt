@@ -19,6 +19,7 @@ import { fileURLToPath } from 'url';
 import chalk from 'chalk';
 import { getDb } from '../db/client.js';
 import { scoreJob } from '../utils/scorer.js';
+import { ensureDailyQuests, getDailyQuests, getHunterStats, getRankInfo, getLevelFromXP } from '../utils/gamification.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT      = join(__dirname, '..', '..');
@@ -135,13 +136,19 @@ function getRecentApplications(days = 7) {
 // ── Main ──────────────────────────────────────────────────────────────
 
 async function main() {
+  ensureDailyQuests();
+
   const topJobs   = getTopPipelineJobs(5);
   const stats     = getPipelineStats();
   const followups = getDueFollowups();
   const recent    = getRecentApplications(7);
+  const hunter    = getHunterStats();
+  const quests    = getDailyQuests();
+  const rankInfo  = getRankInfo(hunter.total_xp);
+  const level     = getLevelFromXP(hunter.total_xp);
 
   if (JSON_MODE) {
-    console.log(JSON.stringify({ topJobs, stats, followups, recent }, null, 2));
+    console.log(JSON.stringify({ topJobs, stats, followups, recent, hunter, quests }, null, 2));
     return;
   }
 
@@ -150,6 +157,20 @@ async function main() {
   console.log();
   console.log(chalk.bold.white('  JOB HUNT BRIEFING') + chalk.dim(` — ${dateStr}`));
   console.log('  ' + divider());
+  console.log();
+
+  // ── Hunter status bar ──────────────────────────────────────────────
+  const rankColors: Record<string, typeof chalk.green> = {
+    E: chalk.gray, D: chalk.green, C: chalk.blue, B: chalk.magenta, A: chalk.yellow, S: chalk.yellowBright,
+  };
+  const rankColor = rankColors[hunter.rank] ?? chalk.white;
+  const barFilled = Math.round((rankInfo.pct / 100) * 20);
+  const xpBar = chalk.green('█'.repeat(barFilled)) + chalk.dim('░'.repeat(20 - barFilled));
+
+  console.log(`  ${rankColor(`[${hunter.rank}-RANK]`)} ${chalk.bold(`Hunter — Level ${level}`)}   ${chalk.dim(`🔥 ${hunter.streak}d streak`)}`);
+  console.log(`  XP ${xpBar} ${chalk.dim(`${hunter.total_xp.toLocaleString()} / ${rankInfo.xpToNext > 0 ? (hunter.total_xp + rankInfo.xpToNext).toLocaleString() : '∞'} XP`)}`);
+  if (rankInfo.xpToNext > 0) console.log(chalk.dim(`  ${rankInfo.xpToNext} XP to ${rankInfo.nextRank}-Rank`));
+  console.log();
   console.log();
 
   // ── Follow-ups (highest urgency) ──────────────────────────────────
@@ -239,9 +260,30 @@ async function main() {
     console.log();
   }
 
+  // ── Daily quests ──────────────────────────────────────────────────
+  if (quests.length) {
+    console.log('  ' + chalk.bold('⚔️  DAILY QUESTS'));
+    console.log();
+    for (const q of quests) {
+      const done   = q.completed === 1;
+      const icon   = done ? chalk.green('✓') : chalk.dim('○');
+      const label  = done ? chalk.dim(q.label) : chalk.white(q.label);
+      const reward = done ? chalk.dim(`+${q.xp_reward} XP`) : chalk.yellow(`+${q.xp_reward} XP`);
+      console.log(`  ${icon}  ${label}  ${reward}`);
+    }
+    const doneCount = quests.filter(q => q.completed).length;
+    console.log();
+    if (doneCount === quests.length) {
+      console.log(chalk.green('  All quests complete! +50 bonus XP earned.'));
+    } else {
+      console.log(chalk.dim(`  ${doneCount}/${quests.length} complete — finish before midnight`));
+    }
+    console.log();
+    console.log('  ' + divider());
+    console.log();
+  }
+
   // ── Quick commands ────────────────────────────────────────────────
-  console.log('  ' + divider());
-  console.log();
   console.log('  ' + chalk.dim('Quick commands:'));
   console.log(chalk.dim('    npm run scan          ') + chalk.dim('pull new jobs'));
   console.log(chalk.dim('    npm run dashboard     ') + chalk.dim('open browser dashboard → :3333'));

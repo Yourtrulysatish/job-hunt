@@ -13,6 +13,11 @@ import {
   getPipelineJobs, getAllContacts, getAllFollowups, getRecentGmailThreads,
   insertContact, completeFollowup, markPipelineJobReviewed,
 } from '../db/queries.js';
+import {
+  getHunterStats, getDailyQuests, getAllUnlockedAchievements,
+  getRecentXPLog, getRankInfo, getLevelFromXP, ensureDailyQuests, ACHIEVEMENTS,
+  getUnlockedAchievementKeys,
+} from '../utils/gamification.js';
 import { scoreJob } from '../utils/scorer.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -138,6 +143,23 @@ app.get('/api/gmail', (_req, res) => {
 });
 
 // ── API: Profile ──────────────────────────────────────────────────────
+
+// ── API: Hunter / Gamification ────────────────────────────────────────
+
+app.get('/api/hunter', (_req, res) => {
+  try {
+    ensureDailyQuests();
+    const stats        = getHunterStats();
+    const quests       = getDailyQuests();
+    const achievements = getAllUnlockedAchievements();
+    const xpLog        = getRecentXPLog(30);
+    const rankInfo     = getRankInfo(stats.total_xp);
+    const level        = getLevelFromXP(stats.total_xp);
+    const unlocked     = getUnlockedAchievementKeys();
+    const allAch       = ACHIEVEMENTS.map(a => ({ ...a, unlocked: unlocked.has(a.key), check: undefined }));
+    res.json({ stats, quests, achievements, xpLog, rankInfo, level, allAchievements: allAch });
+  } catch (e) { res.status(500).json({ error: String(e) }); }
+});
 
 app.get('/api/profile', (_req, res) => {
   try {

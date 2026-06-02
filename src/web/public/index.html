@@ -45,6 +45,31 @@
     .modal{display:none;position:fixed;inset:0;background:#0008;z-index:50;align-items:center;justify-content:center}
     .modal.open{display:flex}
     .modal-box{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:24px;width:480px;max-width:95vw}
+
+    /* ── Gamification ── */
+    .rank-E{color:#8b949e}.rank-D{color:#3fb950}.rank-C{color:#58a6ff}
+    .rank-B{color:#bc8cff}.rank-A{color:#ffa657}.rank-S{color:#d29922}
+    .rank-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:4px;letter-spacing:1px}
+    .badge-E{background:#21262d;color:#8b949e}.badge-D{background:#0d4a1a;color:#3fb950}
+    .badge-C{background:#1a2d5a;color:#58a6ff}.badge-B{background:#2d1a5a;color:#bc8cff}
+    .badge-A{background:#4a2a0a;color:#ffa657}.badge-S{background:#3a2e0a;color:#d29922}
+    .xp-bar-bg{background:#21262d;border-radius:4px;height:8px;overflow:hidden}
+    .xp-bar-fill{height:100%;border-radius:4px;transition:width 1s ease}
+    .quest-done{opacity:0.4;text-decoration:line-through}
+    .ach-locked{opacity:0.35;filter:grayscale(1)}
+    .dungeon-S{color:#d29922;font-weight:700}.dungeon-A{color:#ffa657;font-weight:700}
+    .dungeon-B{color:#bc8cff;font-weight:700}.dungeon-C{color:#58a6ff}
+    .dungeon-D{color:#3fb950}.dungeon-E{color:#8b949e}
+
+    /* achievement toast */
+    #toast-stack{position:fixed;bottom:24px;right:24px;z-index:100;display:flex;flex-direction:column;gap:10px;pointer-events:none}
+    .toast{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:14px 18px;min-width:260px;max-width:320px;
+      animation:slideIn .3s ease;pointer-events:auto}
+    .toast.rank-up{border-color:#d29922;background:#1a150a}
+    .toast.quest{border-color:#3fb950;background:#0d1a0d}
+    @keyframes slideIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
+    @keyframes slideOut{from{transform:translateX(0);opacity:1}to{transform:translateX(120%);opacity:0}}
+    .toast.hiding{animation:slideOut .3s ease forwards}
   </style>
 </head>
 <body class="min-h-screen">
@@ -61,6 +86,7 @@
       <button onclick="show('followups')" id="tab-followups"  class="tab-btn">Follow-ups <span id="b-fu" class="text-gray-600"></span></button>
       <button onclick="show('contacts')"  id="tab-contacts"   class="tab-btn">CRM <span id="b-contacts" class="text-gray-600"></span></button>
       <button onclick="show('gmail')"     id="tab-gmail"      class="tab-btn">Gmail <span id="b-gmail" class="text-gray-600"></span></button>
+      <button onclick="show('hunter')"   id="tab-hunter"   class="tab-btn">⚔️ Hunter</button>
       <button onclick="show('profile')"   id="tab-profile"    class="tab-btn">Profile</button>
     </nav>
   </div>
@@ -196,6 +222,74 @@
   </div>
 </div>
 
+<!-- ═══ HUNTER ═══════════════════════════════════════════════════════ -->
+<div id="view-hunter" class="hidden max-w-5xl mx-auto p-5 space-y-5">
+
+  <!-- Character card -->
+  <div class="card p-6 space-y-4" style="background:linear-gradient(135deg,#0d1117 0%,#161b22 100%);border-color:#30363d">
+    <div class="flex items-start gap-5 flex-wrap">
+      <div class="flex-1 min-w-0 space-y-3">
+        <div class="flex items-center gap-3 flex-wrap">
+          <span id="h-rank-badge" class="rank-badge badge-E">E-RANK</span>
+          <span id="h-name" class="text-xl font-bold text-white">Hunter</span>
+          <span id="h-level" class="text-gray-500 text-sm"></span>
+          <span id="h-streak" class="text-orange-400 text-sm font-semibold"></span>
+        </div>
+        <div class="text-xs text-gray-500" id="h-rank-desc"></div>
+        <!-- XP bar -->
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-gray-500">XP Progress</span>
+            <span id="h-xp-text" class="text-gray-400"></span>
+          </div>
+          <div class="xp-bar-bg">
+            <div id="h-xp-bar" class="xp-bar-fill" style="width:0%;background:#3fb950"></div>
+          </div>
+          <div id="h-xp-next" class="text-xs text-gray-600 mt-1"></div>
+        </div>
+      </div>
+      <!-- Stats grid -->
+      <div class="grid grid-cols-3 gap-3 shrink-0">
+        <div class="text-center"><div id="hs-apps"  class="text-2xl font-bold text-blue-400">0</div><div class="text-xs text-gray-600">Applied</div></div>
+        <div class="text-center"><div id="hs-int"   class="text-2xl font-bold text-green-400">0</div><div class="text-xs text-gray-600">Interviews</div></div>
+        <div class="text-center"><div id="hs-offers" class="text-2xl font-bold text-yellow-400">0</div><div class="text-xs text-gray-600">Offers</div></div>
+        <div class="text-center"><div id="hs-eval"   class="text-2xl font-bold text-purple-400">0</div><div class="text-xs text-gray-600">Evaluated</div></div>
+        <div class="text-center"><div id="hs-contacts" class="text-2xl font-bold text-pink-400">0</div><div class="text-xs text-gray-600">Contacts</div></div>
+        <div class="text-center"><div id="hs-followups" class="text-2xl font-bold text-cyan-400">0</div><div class="text-xs text-gray-600">Follow-ups</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+    <!-- Daily quests -->
+    <div class="card p-5 space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="font-semibold text-white">⚔️ Daily Quests</h2>
+        <span id="h-quest-timer" class="text-xs text-gray-600"></span>
+      </div>
+      <div id="h-quests" class="space-y-3"></div>
+      <div id="h-quests-empty" class="hidden text-xs text-gray-600">Quests refresh every day at midnight.</div>
+      <div id="h-quests-done" class="hidden text-xs text-green-400 font-semibold">✓ All quests complete! Come back tomorrow.</div>
+    </div>
+
+    <!-- Recent XP log -->
+    <div class="card p-5 space-y-3">
+      <h2 class="font-semibold text-white">📈 XP Log</h2>
+      <div id="h-xp-log" class="space-y-1 max-h-56 overflow-auto"></div>
+      <div id="h-xp-log-empty" class="text-xs text-gray-600">No XP earned yet. Take an action!</div>
+    </div>
+
+  </div>
+
+  <!-- Achievements -->
+  <div class="card p-5 space-y-4">
+    <h2 class="font-semibold text-white">🏅 Achievements <span id="h-ach-count" class="text-gray-600 text-sm font-normal ml-1"></span></h2>
+    <div id="h-achievements" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"></div>
+  </div>
+
+</div>
+
 <!-- Add Contact Modal -->
 <div id="contact-modal" class="modal" onclick="if(event.target===this)closeContactModal()">
   <div class="modal-box space-y-4">
@@ -215,12 +309,16 @@
   </div>
 </div>
 
+<!-- Toast stack -->
+<div id="toast-stack"></div>
+
 <script>
 let allApps=[], allInbox=[], allFollowups=[], allContacts=[], statusChart=null;
+let hunterData = null;
 
 // ── Tabs ──────────────────────────────────────────────────────────────
 
-const TABS=['dashboard','inbox','recs','tracker','followups','contacts','gmail','profile'];
+const TABS=['dashboard','inbox','recs','tracker','followups','contacts','gmail','hunter','profile'];
 function show(tab){
   TABS.forEach(t=>{
     document.getElementById('view-'+t)?.classList.toggle('hidden',t!==tab);
@@ -231,13 +329,14 @@ function show(tab){
   if(tab==='followups') loadFollowups();
   if(tab==='contacts')  loadContacts();
   if(tab==='gmail')     loadGmail();
+  if(tab==='hunter')    loadHunter();
   if(tab==='profile')   loadProfile();
 }
 
 // ── Load all ──────────────────────────────────────────────────────────
 
 async function loadAll(){
-  await Promise.all([loadStats(),loadApps(),loadInbox(),loadFollowups()]);
+  await Promise.all([loadStats(),loadApps(),loadInbox(),loadFollowups(),loadHunter(true)]);
   document.getElementById('ts').textContent='Updated '+new Date().toLocaleTimeString();
 }
 
@@ -568,6 +667,180 @@ function fitStars(s){const f=Math.floor(s),h=s-f>=0.5?1:0,e=5-f-h,c=s>=4?'#3fb95
 function fitClass(l){return {'Strong Match':'fit-strong','Good Match':'fit-good','Partial Match':'fit-partial','Weak Match':'fit-weak'}[l]??'fit-weak';}
 function today(){return new Date().toISOString().split('T')[0];}
 function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// ── Hunter / Gamification ──────────────────────────────────────────────
+
+async function loadHunter(silent=false) {
+  const r = await fetch('/api/hunter').catch(()=>null);
+  if(!r?.ok) return;
+  hunterData = await r.json();
+  renderHunterCard(hunterData);
+  renderQuests(hunterData.quests);
+  renderXPLog(hunterData.xpLog);
+  renderAchievements(hunterData.allAchievements, hunterData.achievements);
+  if(!silent) updateQuestTimer();
+}
+
+function renderHunterCard(d) {
+  const {stats, rankInfo, level} = d;
+  const rankColors = {E:'#8b949e',D:'#3fb950',C:'#58a6ff',B:'#bc8cff',A:'#ffa657',S:'#d29922'};
+  const color = rankColors[stats.rank] || '#8b949e';
+
+  document.getElementById('h-rank-badge').textContent = stats.rank+'-RANK';
+  document.getElementById('h-rank-badge').className = `rank-badge badge-${stats.rank}`;
+  document.getElementById('h-name').textContent = 'Hunter — Level '+level;
+  document.getElementById('h-level').textContent = rankInfo.description;
+  document.getElementById('h-streak').textContent = stats.streak > 0 ? `🔥 ${stats.streak}-day streak` : '';
+  document.getElementById('h-rank-desc').textContent = rankInfo.xpToNext > 0
+    ? `${stats.total_xp.toLocaleString()} XP total · ${rankInfo.xpToNext.toLocaleString()} XP to ${rankInfo.nextRank}-Rank`
+    : `${stats.total_xp.toLocaleString()} XP · MAX RANK`;
+  document.getElementById('h-xp-text').textContent = `${rankInfo.xpIntoRank.toLocaleString()} / ${(rankInfo.xpIntoRank + rankInfo.xpToNext).toLocaleString()}`;
+  document.getElementById('h-xp-bar').style.width = rankInfo.pct+'%';
+  document.getElementById('h-xp-bar').style.background = color;
+  document.getElementById('h-xp-next').textContent = rankInfo.nextRank ? `Next rank: ${rankInfo.nextRank}-Rank` : 'Maximum rank reached';
+
+  document.getElementById('hs-apps').textContent      = stats.applications_sent;
+  document.getElementById('hs-int').textContent       = stats.interviews;
+  document.getElementById('hs-offers').textContent    = stats.offers;
+  document.getElementById('hs-eval').textContent      = stats.jobs_evaluated;
+  document.getElementById('hs-contacts').textContent  = stats.contacts_added;
+  document.getElementById('hs-followups').textContent = stats.followups_sent;
+}
+
+function renderQuests(quests) {
+  const el    = document.getElementById('h-quests');
+  const empty = document.getElementById('h-quests-empty');
+  const done  = document.getElementById('h-quests-done');
+
+  if(!quests?.length) { el.innerHTML=''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+
+  const allDone = quests.every(q=>q.completed);
+  done.classList.toggle('hidden', !allDone);
+
+  el.innerHTML = quests.map(q => {
+    const isDone  = q.completed === 1;
+    const pct     = Math.min(100, Math.round((q.progress/q.target)*100));
+    return `<div class="flex items-start gap-3 ${isDone?'quest-done':''}">
+      <div class="mt-0.5 shrink-0 w-5 h-5 rounded border flex items-center justify-center text-xs
+        ${isDone ? 'border-green-700 bg-green-900/40 text-green-400' : 'border-gray-700 text-gray-600'}">
+        ${isDone ? '✓' : '○'}
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="text-xs ${isDone?'text-gray-600':'text-gray-300'}">${esc(q.label)}</div>
+        ${!isDone && q.target > 1 ? `
+          <div class="xp-bar-bg mt-1" style="height:4px">
+            <div class="xp-bar-fill" style="width:${pct}%;background:#58a6ff;height:4px"></div>
+          </div>` : ''}
+      </div>
+      <span class="text-xs shrink-0 ${isDone?'text-gray-600':'text-yellow-400'} font-mono">+${q.xp_reward} XP</span>
+    </div>`;
+  }).join('');
+}
+
+function renderXPLog(log) {
+  const el    = document.getElementById('h-xp-log');
+  const empty = document.getElementById('h-xp-log-empty');
+  if(!log?.length) { el.innerHTML=''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+
+  const actionLabel = {
+    EVALUATE_JOB:'Evaluated job', APPLY_JOB:'Applied to job', GOT_REPLY:'Got a reply',
+    GOT_INTERVIEW:'Interview scheduled!', GOT_OFFER:'OFFER RECEIVED!', FOLLOW_UP:'Follow-up sent',
+    ADD_CONTACT:'Contact added', SCAN_JOBS:'Scanned for jobs', GENERATE_PACKAGE:'Generated application package',
+    SEND_OUTREACH:'Outreach sent', COMPLETE_QUEST:'Quest complete', ACHIEVEMENT:'Achievement unlocked',
+    STREAK_7:'7-day streak bonus', STREAK_30:'30-day streak bonus',
+  };
+
+  el.innerHTML = log.map(e => {
+    const label = actionLabel[e.action] || e.action;
+    const isSpecial = e.xp >= 100;
+    const color = e.xp >= 500 ? 'text-yellow-400' : e.xp >= 100 ? 'text-green-400' : 'text-gray-500';
+    const time = new Date(e.earned_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+    return `<div class="flex items-center gap-2 text-xs">
+      <span class="${color} font-mono font-bold w-14 text-right shrink-0">+${e.xp}</span>
+      <span class="${isSpecial?'text-gray-300':'text-gray-500'} flex-1">${esc(e.description||label)}</span>
+      <span class="text-gray-700 shrink-0">${time}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderAchievements(all, unlocked) {
+  const el = document.getElementById('h-achievements');
+  if(!all?.length) { el.innerHTML=''; return; }
+
+  const unlockedKeys = new Set((unlocked||[]).map(a=>a.key));
+  const count = unlockedKeys.size;
+  document.getElementById('h-ach-count').textContent = `${count} / ${all.length} unlocked`;
+
+  // Sort: unlocked first
+  const sorted = [...all].sort((a,b)=>{
+    const aU = unlockedKeys.has(a.key), bU = unlockedKeys.has(b.key);
+    if(aU && !bU) return -1; if(!aU && bU) return 1; return 0;
+  });
+
+  el.innerHTML = sorted.map(a => {
+    const isUnlocked = unlockedKeys.has(a.key);
+    const unlockedAt = isUnlocked ? unlocked.find(u=>u.key===a.key)?.unlocked_at : null;
+    const dateStr = unlockedAt ? new Date(unlockedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short'}) : '';
+    return `<div class="card p-3 flex flex-col gap-1 text-center ${isUnlocked?'':'ach-locked'}">
+      <div class="text-2xl">${a.icon}</div>
+      <div class="text-xs font-semibold ${isUnlocked?'text-white':'text-gray-500'}">${esc(a.name)}</div>
+      <div class="text-xs text-gray-600">${esc(a.description)}</div>
+      <div class="text-xs font-mono ${isUnlocked?'text-yellow-400':'text-gray-700'}">+${a.xp} XP</div>
+      ${isUnlocked?`<div class="text-xs text-gray-700">${dateStr}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function updateQuestTimer() {
+  const el = document.getElementById('h-quest-timer');
+  if(!el) return;
+  const now = new Date();
+  const midnight = new Date(now); midnight.setHours(24,0,0,0);
+  const diff = midnight - now;
+  const h = Math.floor(diff/3600000), m = Math.floor((diff%3600000)/60000);
+  el.textContent = `Resets in ${h}h ${m}m`;
+}
+
+// ── Toast notifications ────────────────────────────────────────────────
+
+function showToast(opts) {
+  // opts: { icon, title, subtitle, xp, type }
+  const stack = document.getElementById('toast-stack');
+  const t = document.createElement('div');
+  t.className = `toast ${opts.type||''}`;
+  t.innerHTML = `
+    <div class="flex items-start gap-3">
+      <span class="text-2xl shrink-0">${opts.icon||'⚡'}</span>
+      <div class="flex-1 min-w-0">
+        <div class="font-bold text-white text-sm">${esc(opts.title)}</div>
+        ${opts.subtitle?`<div class="text-xs text-gray-400 mt-0.5">${esc(opts.subtitle)}</div>`:''}
+        ${opts.xp?`<div class="text-xs text-yellow-400 font-mono mt-1">+${opts.xp} XP</div>`:''}
+      </div>
+      <button onclick="dismissToast(this.parentElement.parentElement)" class="text-gray-600 hover:text-gray-300 text-lg leading-none">×</button>
+    </div>`;
+  stack.appendChild(t);
+  setTimeout(()=>dismissToast(t), 5000);
+}
+
+function dismissToast(el) {
+  if(!el||el.classList.contains('hiding')) return;
+  el.classList.add('hiding');
+  setTimeout(()=>el.remove(), 300);
+}
+
+function showRankUp(rank) {
+  showToast({ icon:'👑', title:`RANK UP — ${rank}-Rank!`, subtitle:'You are getting stronger.', type:'rank-up' });
+}
+
+function showQuestComplete(label, xp) {
+  showToast({ icon:'✓', title:'Quest Complete', subtitle:label, xp, type:'quest' });
+}
+
+function showAchievement(icon, name, xp) {
+  showToast({ icon, title:'Achievement Unlocked', subtitle:name, xp });
+}
 
 loadAll();
 </script>

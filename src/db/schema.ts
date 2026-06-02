@@ -108,6 +108,62 @@ CREATE TABLE IF NOT EXISTS gmail_threads (
   created_at   TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+-- ══════════════════════════════════════════════════════
+-- GAMIFICATION TABLES
+-- ══════════════════════════════════════════════════════
+
+CREATE TABLE IF NOT EXISTS hunter_stats (
+  id            INTEGER PRIMARY KEY CHECK (id = 1),  -- singleton row
+  total_xp      INTEGER NOT NULL DEFAULT 0,
+  level         INTEGER NOT NULL DEFAULT 1,
+  rank          TEXT    NOT NULL DEFAULT 'E',
+  streak        INTEGER NOT NULL DEFAULT 0,
+  longest_streak INTEGER NOT NULL DEFAULT 0,
+  last_active   TEXT,
+  applications_sent INTEGER NOT NULL DEFAULT 0,
+  interviews    INTEGER NOT NULL DEFAULT 0,
+  offers        INTEGER NOT NULL DEFAULT 0,
+  contacts_added INTEGER NOT NULL DEFAULT 0,
+  jobs_evaluated INTEGER NOT NULL DEFAULT 0,
+  followups_sent INTEGER NOT NULL DEFAULT 0
+);
+
+INSERT OR IGNORE INTO hunter_stats (id) VALUES (1);
+
+CREATE TABLE IF NOT EXISTS xp_log (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  action      TEXT NOT NULL,
+  xp          INTEGER NOT NULL,
+  description TEXT,
+  earned_at   TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS daily_quests (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  date        TEXT NOT NULL,
+  quest_type  TEXT NOT NULL,
+  label       TEXT NOT NULL,
+  target      INTEGER NOT NULL DEFAULT 1,
+  progress    INTEGER NOT NULL DEFAULT 0,
+  completed   INTEGER NOT NULL DEFAULT 0,
+  xp_reward   INTEGER NOT NULL,
+  completed_at TEXT,
+  UNIQUE(date, quest_type)
+);
+
+CREATE TABLE IF NOT EXISTS achievements_unlocked (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  key         TEXT NOT NULL UNIQUE,
+  name        TEXT NOT NULL,
+  description TEXT,
+  icon        TEXT,
+  xp_bonus    INTEGER NOT NULL DEFAULT 0,
+  unlocked_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_xp_log_date ON xp_log(earned_at DESC);
+CREATE INDEX IF NOT EXISTS idx_quests_date ON daily_quests(date);
+
 CREATE TABLE IF NOT EXISTS salary_data (
   id           INTEGER PRIMARY KEY AUTOINCREMENT,
   role         TEXT NOT NULL,
