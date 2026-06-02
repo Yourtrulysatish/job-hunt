@@ -24,7 +24,9 @@
     "generate:cover": "tsx src/commands/generate.ts --type cover",
     "generate:resume": "tsx src/commands/generate.ts --type resume",
     "gmail": "tsx src/commands/gmail.ts",
-    "gmail:auth": "tsx src/commands/gmail.ts auth"
+    "gmail:auth": "tsx src/commands/gmail.ts auth",
+    "linkedin": "tsx src/commands/linkedin.ts",
+    "linkedin:auth": "tsx src/commands/linkedin.ts auth"
   },
   "keywords": [
     "ai",

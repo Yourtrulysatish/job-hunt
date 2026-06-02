@@ -154,28 +154,57 @@ app.get('/api/scan/status', (_req, res) => {
   res.json({ running: scanRunning, last: lastScanResult });
 });
 
-app.post('/api/scan', (_req, res) => {
-  if (scanRunning) return res.status(409).json({ error: 'Scan already running' });
-
-  scanRunning = true;
-  res.json({ started: true });
-
-  const proc = spawn('npx', ['tsx', 'src/commands/scan.ts'], {
-    cwd: ROOT, stdio: ['ignore', 'pipe', 'pipe'],
-  });
-
+function runCommand(cmd: string[], onDone: (stdout: string) => void) {
+  const proc = spawn('npx', cmd, { cwd: ROOT, stdio: ['ignore', 'pipe', 'pipe'] });
   let stdout = '';
   proc.stdout.on('data', (d: Buffer) => { stdout += d.toString(); });
   proc.stderr.on('data', (d: Buffer) => { stdout += d.toString(); });
+  proc.on('close', () => onDone(stdout));
+}
 
-  proc.on('close', () => {
+app.post('/api/scan', (_req, res) => {
+  if (scanRunning) return res.status(409).json({ error: 'Scan already running' });
+  scanRunning = true;
+  res.json({ started: true });
+
+  runCommand(['tsx', 'src/commands/scan.ts'], stdout => {
     scanRunning = false;
-    const newMatch = stdout.match(/(\d+) new/);
+    const newMatch   = stdout.match(/(\d+) new/);
     const totalMatch = stdout.match(/(\d+) total/);
     lastScanResult = {
-      newJobs: newMatch ? parseInt(newMatch[1]) : 0,
-      total: totalMatch ? parseInt(totalMatch[1]) : 0,
+      newJobs: newMatch   ? parseInt(newMatch[1])   : 0,
+      total:   totalMatch ? parseInt(totalMatch[1]) : 0,
       timestamp: new Date().toISOString(),
+    };
+  });
+});
+
+// ── LinkedIn scraper ───────────────────────────────────────────────────
+
+let linkedinRunning = false;
+let lastLinkedinResult: { newJobs: number; timestamp: string; error?: string } | null = null;
+
+app.get('/api/linkedin/status', (_req, res) => {
+  const hasSession = existsSync(join(ROOT, 'config', 'linkedin-session.json'));
+  res.json({ running: linkedinRunning, last: lastLinkedinResult, hasSession });
+});
+
+app.post('/api/linkedin', (_req, res) => {
+  if (linkedinRunning) return res.status(409).json({ error: 'LinkedIn scan already running' });
+
+  const hasSession = existsSync(join(ROOT, 'config', 'linkedin-session.json'));
+  if (!hasSession) return res.status(400).json({ error: 'NO_SESSION', message: 'Run: npm run linkedin:auth first' });
+
+  linkedinRunning = true;
+  res.json({ started: true });
+
+  runCommand(['tsx', 'src/commands/linkedin.ts'], stdout => {
+    linkedinRunning = false;
+    const newMatch = stdout.match(/(\d+) new LinkedIn jobs/);
+    lastLinkedinResult = {
+      newJobs: newMatch ? parseInt(newMatch[1]) : 0,
+      timestamp: new Date().toISOString(),
+      error: stdout.includes('session expired') || stdout.includes('SESSION_EXPIRED') ? 'Session expired — run npm run linkedin:auth' : undefined,
     };
   });
 });
