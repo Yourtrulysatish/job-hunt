@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.env
+data/*.db
+data/*.db-shm
+data/*.db-wal
+output/
+batch/logs/
+batch/tracker-additions/
+config/profile.yml
+config/portals.yml
+modes/_profile.md
+cv.md
+article-digest.md
+.DS_Store
+*.log

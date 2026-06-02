@@ -1,0 +1,125 @@
+# Job Hunt — Portal Scanner Configuration
+# Copy this to config/portals.yml and customize.
+# This file is never auto-updated.
+
+title_filter:
+  positive:                         # Match any of these (case-insensitive regex)
+    - "AI Engineer"
+    - "ML Engineer"
+    - "LLM"
+    - "Applied AI"
+    - "Machine Learning"
+    - "Staff Engineer"
+    - "Senior Engineer"
+    - "Head of AI"
+    - "AI Platform"
+    - "AI Infrastructure"
+    - "Agentic"
+  negative:                         # Exclude any of these
+    - "Data Entry"
+    - "Intern"
+    - "Junior"
+    - "^Sales"
+    - "Marketing"
+    - "HR"
+
+companies:
+  # ── AI Labs ──────────────────────────────────────────────────────────
+  - name: Anthropic
+    careers_url: https://boards.greenhouse.io/anthropic
+    enabled: true
+
+  - name: OpenAI
+    careers_url: https://jobs.ashbyhq.com/openai
+    enabled: true
+
+  - name: Cohere
+    careers_url: https://jobs.lever.co/cohere
+    enabled: true
+
+  - name: Mistral AI
+    careers_url: https://jobs.lever.co/mistral
+    enabled: true
+
+  - name: Perplexity AI
+    careers_url: https://jobs.ashbyhq.com/perplexity-ai
+    enabled: true
+
+  # ── AI Infra / Tooling ────────────────────────────────────────────────
+  - name: LangChain
+    careers_url: https://jobs.ashbyhq.com/langchain
+    enabled: true
+
+  - name: Weights & Biases
+    careers_url: https://jobs.lever.co/wandb
+    enabled: true
+
+  - name: Hugging Face
+    careers_url: https://jobs.lever.co/huggingface
+    enabled: true
+
+  - name: Together AI
+    careers_url: https://jobs.ashbyhq.com/together-ai
+    enabled: true
+
+  - name: Replicate
+    careers_url: https://jobs.ashbyhq.com/replicate
+    enabled: true
+
+  - name: ElevenLabs
+    careers_url: https://jobs.ashbyhq.com/elevenlabs
+    enabled: true
+
+  - name: Pika Labs
+    careers_url: https://jobs.ashbyhq.com/pika
+    enabled: true
+
+  - name: Moonshot AI
+    careers_url: https://jobs.lever.co/moonshot
+    enabled: false
+
+  # ── Agentic / Automation ──────────────────────────────────────────────
+  - name: n8n
+    careers_url: https://jobs.lever.co/n8n
+    enabled: true
+
+  - name: Retool
+    careers_url: https://jobs.ashbyhq.com/retool
+    enabled: true
+
+  - name: Zapier
+    careers_url: https://jobs.lever.co/zapier
+    enabled: true
+
+  # ── Enterprise AI ─────────────────────────────────────────────────────
+  - name: Scale AI
+    careers_url: https://jobs.ashbyhq.com/scale-ai
+    enabled: true
+
+  - name: Databricks
+    api: https://boards-api.greenhouse.io/v1/boards/databricks/jobs?content=true
+    portal: greenhouse
+    enabled: true
+
+  - name: Snowflake
+    careers_url: https://careers.smartrecruiters.com/Snowflake
+    enabled: true
+
+  - name: Palantir
+    careers_url: https://jobs.lever.co/palantir
+    enabled: true
+
+  # ── Big Tech AI teams ─────────────────────────────────────────────────
+  - name: Google DeepMind
+    api: https://boards-api.greenhouse.io/v1/boards/google/jobs?content=true
+    portal: greenhouse
+    enabled: false                  # High noise — enable if targeting explicitly
+
+  - name: Microsoft AI
+    careers_url: https://microsoft.wd3.myworkdayjobs.com/en-US/Microsoft_Careers
+    enabled: false                  # Workday — slow, enable if needed
+
+  # ── Add your own ──────────────────────────────────────────────────────
+  # - name: Your Company
+  #   careers_url: https://jobs.ashbyhq.com/yourcompany   # or lever, greenhouse URL
+  #   enabled: true

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Job Hunt — Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { background: #0d1117; color: #e6edf3; font-family: 'SF Mono', 'Fira Code', monospace; }
+    .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+    .score-high { color: #3fb950; }
+    .score-mid  { color: #d29922; }
+    .score-low  { color: #f85149; }
+    .status-pill { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
+    .pill-Evaluated   { background: #1f6feb33; color: #58a6ff; }
+    .pill-Applied     { background: #1a7f3733; color: #3fb950; }
+    .pill-Interview   { background: #9e6a0333; color: #d29922; }
+    .pill-Offer       { background: #2ea04333; color: #56d364; }
+    .pill-Rejected    { background: #da363333; color: #f85149; }
+    .pill-Discarded   { background: #21262d; color: #8b949e; }
+    .pill-SKIP        { background: #21262d; color: #484f58; }
+    .pill-Responded   { background: #31366633; color: #8b949e; }
+    input, select { background: #0d1117; border: 1px solid #30363d; color: #e6edf3; border-radius: 6px; padding: 6px 10px; font-size: 13px; }
+    input:focus, select:focus { outline: 1px solid #1f6feb; }
+    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #0d1117; } ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+    .overdue-alert { border-left: 3px solid #f85149; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+<!-- Header -->
+<header class="border-b border-gray-800 px-6 py-4 flex items-center justify-between">
+  <div class="flex items-center gap-3">
+    <span class="text-xl font-bold text-white">Job Hunt</span>
+    <span class="text-gray-500 text-sm">dashboard</span>
+  </div>
+  <div class="flex items-center gap-3">
+    <span id="last-updated" class="text-xs text-gray-600"></span>
+    <button onclick="loadAll()" class="text-xs px-3 py-1 rounded border border-gray-700 text-gray-400 hover:border-gray-500 hover:text-gray-200 transition">Refresh</button>
+  </div>
+</header>
+
+<div class="max-w-7xl mx-auto px-6 py-6 space-y-6">
+
+  <!-- Stats row -->
+  <div id="stats-row" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="card p-4 text-center">
+      <div id="stat-total" class="text-3xl font-bold text-white">—</div>
+      <div class="text-xs text-gray-500 mt-1">Total Applications</div>
+    </div>
+    <div class="card p-4 text-center">
+      <div id="stat-avg-score" class="text-3xl font-bold text-yellow-400">—</div>
+      <div class="text-xs text-gray-500 mt-1">Avg Score</div>
+    </div>
+    <div class="card p-4 text-center">
+      <div id="stat-interviews" class="text-3xl font-bold text-blue-400">—</div>
+      <div class="text-xs text-gray-500 mt-1">Interviews</div>
+    </div>
+    <div class="card p-4 text-center">
+      <div id="stat-offers" class="text-3xl font-bold text-green-400">—</div>
+      <div class="text-xs text-gray-500 mt-1">Offers</div>
+    </div>
+  </div>
+
+  <!-- Overdue follow-ups banner -->
+  <div id="followup-banner" class="hidden card p-4 overdue-alert">
+    <div class="flex items-start gap-3">
+      <span class="text-red-400 text-lg">!</span>
+      <div>
+        <div class="text-sm font-semibold text-red-400" id="followup-count"></div>
+        <div id="followup-list" class="mt-2 space-y-1"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main content: applications + charts -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Applications list (2/3) -->
+    <div class="lg:col-span-2 card p-4">
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+        <h2 class="text-sm font-semibold text-gray-300">Pipeline</h2>
+        <div class="flex gap-2 flex-wrap">
+          <input id="filter-company" placeholder="Company…" class="w-32 text-xs" oninput="applyFilters()" />
+          <select id="filter-status" class="text-xs" onchange="applyFilters()">
+            <option value="">All statuses</option>
+            <option>Evaluated</option><option>Applied</option><option>Interview</option>
+            <option>Offer</option><option>Rejected</option><option>Discarded</option><option>SKIP</option>
+          </select>
+          <select id="filter-score" class="text-xs" onchange="applyFilters()">
+            <option value="">Any score</option>
+            <option value="4.5">4.5+</option>
+            <option value="4.0">4.0+</option>
+            <option value="3.5">3.5+</option>
+          </select>
+        </div>
+      </div>
+      <div class="overflow-auto max-h-[560px]">
+        <table class="w-full text-xs">
+          <thead class="text-gray-500 sticky top-0 bg-gray-900">
+            <tr>
+              <th class="text-left py-1 px-2">#</th>
+              <th class="text-left py-1 px-2">Company</th>
+              <th class="text-left py-1 px-2">Role</th>
+              <th class="text-left py-1 px-2">Score</th>
+              <th class="text-left py-1 px-2">Status</th>
+              <th class="text-left py-1 px-2">Date</th>
+            </tr>
+          </thead>
+          <tbody id="apps-table" class="divide-y divide-gray-800"></tbody>
+        </table>
+        <div id="apps-empty" class="text-center text-gray-600 py-8 hidden">No applications yet.</div>
+      </div>
+    </div>
+
+    <!-- Right column: charts + skills gap -->
+    <div class="space-y-4">
+
+      <!-- Status chart -->
+      <div class="card p-4">
+        <h2 class="text-xs font-semibold text-gray-400 mb-3">By Status</h2>
+        <canvas id="status-chart" height="180"></canvas>
+      </div>
+
+      <!-- Score distribution -->
+      <div class="card p-4">
+        <h2 class="text-xs font-semibold text-gray-400 mb-3">Score Distribution</h2>
+        <canvas id="score-chart" height="120"></canvas>
+      </div>
+
+      <!-- Skills gap -->
+      <div class="card p-4">
+        <h2 class="text-xs font-semibold text-gray-400 mb-3">Skills Gap</h2>
+        <div id="skills-list" class="space-y-2 text-xs"></div>
+        <div id="skills-empty" class="text-gray-600 text-xs">No data yet — evaluate some jobs first.</div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+let allApps = [];
+let statusChart = null, scoreChart = null;
+
+async function loadAll() {
+  await Promise.all([loadStats(), loadApps(), loadFollowups(), loadSkillsGap()]);
+  document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString();
+}
+
+async function loadStats() {
+  const r = await fetch('/api/stats').catch(() => null);
+  if (!r?.ok) return;
+  const d = await r.json();
+  document.getElementById('stat-total').textContent = d.total ?? 0;
+  document.getElementById('stat-avg-score').textContent = d.avgScore ? d.avgScore.toFixed(1) : '—';
+  const interviews = d.byStatus?.find(s => s.status === 'Interview')?.count ?? 0;
+  const offers = d.byStatus?.find(s => s.status === 'Offer')?.count ?? 0;
+  document.getElementById('stat-interviews').textContent = interviews;
+  document.getElementById('stat-offers').textContent = offers;
+  renderStatusChart(d.byStatus ?? []);
+}
+
+async function loadApps() {
+  const r = await fetch('/api/applications').catch(() => null);
+  if (!r?.ok) return;
+  allApps = await r.json();
+  applyFilters();
+  renderScoreChart(allApps);
+}
+
+async function loadFollowups() {
+  const r = await fetch('/api/followups').catch(() => null);
+  if (!r?.ok) return;
+  const data = await r.json();
+  const banner = document.getElementById('followup-banner');
+  if (!data.length) { banner.classList.add('hidden'); return; }
+  banner.classList.remove('hidden');
+  document.getElementById('followup-count').textContent = `${data.length} overdue follow-up${data.length > 1 ? 's' : ''}`;
+  document.getElementById('followup-list').innerHTML = data.map(f =>
+    `<div class="text-xs text-gray-400">${f.company} — ${f.role} <span class="text-red-500">(${f.type}, due ${f.due_date})</span></div>`
+  ).join('');
+}
+
+async function loadSkillsGap() {
+  const r = await fetch('/api/skills-gap').catch(() => null);
+  if (!r?.ok) return;
+  const data = await r.json();
+  const list = document.getElementById('skills-list');
+  const empty = document.getElementById('skills-empty');
+  if (!data.length) { list.innerHTML = ''; empty.style.display = ''; return; }
+  empty.style.display = 'none';
+  list.innerHTML = data.map(s => {
+    const pct = Math.round(s.match_rate * 100);
+    const color = pct >= 75 ? '#3fb950' : pct >= 40 ? '#d29922' : '#f85149';
+    return `<div>
+      <div class="flex justify-between text-gray-400">
+        <span>${s.skill}</span>
+        <span style="color:${color}">${pct}% match</span>
+      </div>
+      <div class="w-full h-1 bg-gray-800 rounded mt-1">
+        <div class="h-1 rounded" style="width:${pct}%;background:${color}"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function applyFilters() {
+  const company = document.getElementById('filter-company').value.toLowerCase();
+  const status = document.getElementById('filter-status').value;
+  const minScore = parseFloat(document.getElementById('filter-score').value || '0');
+
+  const filtered = allApps.filter(a =>
+    (!company || a.company.toLowerCase().includes(company)) &&
+    (!status || a.status === status) &&
+    (!minScore || (a.score ?? 0) >= minScore)
+  );
+
+  renderTable(filtered);
+}
+
+function renderTable(apps) {
+  const tbody = document.getElementById('apps-table');
+  const empty = document.getElementById('apps-empty');
+
+  if (!apps.length) {
+    tbody.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  tbody.innerHTML = apps.map(a => {
+    const scoreClass = a.score >= 4.5 ? 'score-high' : a.score >= 3.5 ? 'score-mid' : 'score-low';
+    const pillClass = 'pill-' + (a.status || 'Evaluated').replace(/\s/g, '');
+    const reportLink = a.report_path
+      ? `<a href="/api/report/${encodeURIComponent(a.report_path)}" target="_blank" class="text-blue-500 hover:underline">${a.num}</a>`
+      : `<span class="text-gray-600">${a.num}</span>`;
+
+    return `<tr class="hover:bg-gray-800/30 transition-colors">
+      <td class="py-2 px-2 text-gray-500">${reportLink}</td>
+      <td class="py-2 px-2 font-medium">${escHtml(a.company)}</td>
+      <td class="py-2 px-2 text-gray-300 max-w-[180px] truncate" title="${escHtml(a.role)}">${escHtml(a.role)}</td>
+      <td class="py-2 px-2 ${scoreClass} font-mono">${a.score ? a.score.toFixed(1) : '—'}</td>
+      <td class="py-2 px-2"><span class="status-pill ${pillClass}">${a.status}</span></td>
+      <td class="py-2 px-2 text-gray-600">${a.date}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderStatusChart(byStatus) {
+  const ctx = document.getElementById('status-chart');
+  const labels = byStatus.map(s => s.status);
+  const values = byStatus.map(s => s.count);
+  const colors = ['#58a6ff','#3fb950','#d29922','#56d364','#f85149','#484f58','#8b949e','#bc8cff'];
+
+  if (statusChart) statusChart.destroy();
+  statusChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 0 }] },
+    options: {
+      plugins: { legend: { position: 'bottom', labels: { color: '#8b949e', font: { size: 10 }, boxWidth: 10 } } },
+      cutout: '60%',
+    },
+  });
+}
+
+function renderScoreChart(apps) {
+  const ctx = document.getElementById('score-chart');
+  const buckets = { '4.5-5.0': 0, '4.0-4.4': 0, '3.5-3.9': 0, '<3.5': 0 };
+  apps.forEach(a => {
+    if (!a.score) return;
+    if (a.score >= 4.5) buckets['4.5-5.0']++;
+    else if (a.score >= 4.0) buckets['4.0-4.4']++;
+    else if (a.score >= 3.5) buckets['3.5-3.9']++;
+    else buckets['<3.5']++;
+  });
+
+  if (scoreChart) scoreChart.destroy();
+  scoreChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: Object.keys(buckets),
+      datasets: [{
+        data: Object.values(buckets),
+        backgroundColor: ['#3fb950', '#56d364', '#d29922', '#f85149'],
+        borderRadius: 4,
+        borderWidth: 0,
+      }],
+    },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#8b949e', font: { size: 10 } }, grid: { color: '#21262d' } },
+        y: { ticks: { color: '#8b949e', font: { size: 10 }, stepSize: 1 }, grid: { color: '#21262d' } },
+      },
+    },
+  });
+}
+
+function escHtml(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+loadAll();
+</script>
+</body>
+</html>

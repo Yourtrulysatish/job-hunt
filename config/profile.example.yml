@@ -1,0 +1,57 @@
+# Job Hunt — Candidate Profile
+# Copy this to config/profile.yml and fill in your details.
+# This file is never auto-updated.
+
+candidate:
+  name: "Your Full Name"
+  email: "your@email.com"
+  phone: "+1 XXX XXX XXXX"         # Optional — used in PDFs
+  location: "City, Country"
+  timezone: "America/New_York"
+  linkedin: "https://linkedin.com/in/yourhandle"
+  github: "https://github.com/yourhandle"
+  portfolio: ""                     # Optional: personal site
+
+target:
+  roles:
+    - "Senior AI Engineer"
+    - "Staff Engineer, AI Platform"
+    - "Head of Applied AI"
+  archetypes:                       # Primary search archetypes (see modes/_shared.md)
+    - "AI Platform / LLMOps"
+    - "Agentic / Automation"
+  seniority: "Senior / Staff / Lead"
+  remote: "remote-preferred"        # remote-only | remote-preferred | hybrid-ok | onsite-ok
+
+compensation:
+  currency: "USD"
+  base_min: 180000
+  base_target: 210000
+  equity_target: 100000             # Annual RSU value target
+  total_comp_min: 250000
+
+language:
+  modes_dir: "modes"                # Change to modes/de, modes/fr, modes/ja for language modes
+  output: "en"                      # Default output language
+
+cv:
+  canva_resume_design_id: ""        # Optional: Canva design ID for visual CV
+
+preferences:
+  company_size:
+    min_employees: 50
+    max_employees: 5000             # 0 = no limit
+  stages:                           # Preferred funding stages
+    - "Series B"
+    - "Series C"
+    - "Series D+"
+    - "Public"
+  avoid:
+    - "pure consulting"
+    - "body-shop staffing"
+    - "no equity"
+
+narrative: |
+  # Add your career story here — used by AI to personalize evaluations.
+  # What makes you unique? What's your track record? What do you want next?
+  # The more context, the better the evaluations.
