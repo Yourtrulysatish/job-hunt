@@ -178,9 +178,23 @@ app.patch('/api/pipeline/:url/status', async (req, res) => {
 
 // ── API: Recommendations ──────────────────────────────────────────────
 
-app.get('/api/recommendations', (_req, res) => {
-  const jobs = parsePipelineMd().filter(j => !j.checked);
-  res.json(jobs.filter(j => j.fit_score >= 3.5 && !j.skip_reason).sort((a, b) => b.fit_score - a.fit_score).slice(0, 10));
+app.get('/api/recommendations', async (_req, res) => {
+  try {
+    const dbJobs = await getPipelineJobs({ limit: 200 });
+    if (dbJobs.length > 0) {
+      const scored = dbJobs
+        .filter(j => j.status === 'new' && (j.fit_score ?? 0) >= 3.5)
+        .map(j => ({ ...j, checked: false, fit_reasons: scoreJob({ role: j.role, company: j.company, location: j.location, portal: j.portal }).reasons, remote: j.remote === 1 }))
+        .sort((a, b) => (b.fit_score ?? 0) - (a.fit_score ?? 0))
+        .slice(0, 10);
+      return res.json(scored);
+    }
+    const mdJobs = parsePipelineMd().filter(j => !j.checked);
+    res.json(mdJobs.filter(j => j.fit_score >= 3.5 && !j.skip_reason).sort((a, b) => b.fit_score - a.fit_score).slice(0, 10));
+  } catch {
+    const mdJobs = parsePipelineMd().filter(j => !j.checked);
+    res.json(mdJobs.filter(j => j.fit_score >= 3.5 && !j.skip_reason).sort((a, b) => b.fit_score - a.fit_score).slice(0, 10));
+  }
 });
 
 // ── API: Follow-ups ────────────────────────────────────────────────────
@@ -309,8 +323,10 @@ app.get('/api/profile', (_req, res) => {
   try {
     const cvPath      = join(ROOT, 'cv.md');
     const profilePath = join(ROOT, 'config', 'profile.yml');
-    const cv          = existsSync(cvPath)      ? readFileSync(cvPath, 'utf8')      : null;
-    const profileRaw  = existsSync(profilePath) ? readFileSync(profilePath, 'utf8') : null;
+    const cv          = process.env.CV_MD
+                        ?? (existsSync(cvPath)      ? readFileSync(cvPath, 'utf8')      : null);
+    const profileRaw  = process.env.PROFILE_YML
+                        ?? (existsSync(profilePath) ? readFileSync(profilePath, 'utf8') : null);
     const profile     = profileRaw ? yaml.load(profileRaw) : null;
     res.json({ cv, profile });
   } catch { res.status(500).json({ error: 'Failed.' }); }
