@@ -316,7 +316,7 @@ app.get('/api/profile', (_req, res) => {
 // ── API: Reports ──────────────────────────────────────────────────────
 
 app.get('/api/report/:path(*)', (req, res) => {
-  try { res.type('text/plain').send(readFileSync(join(ROOT, 'reports', req.params.path), 'utf8')); }
+  try { res.type('text/plain').send(readFileSync(join(ROOT, 'reports', (req.params as Record<string, string>)['path(*)']), 'utf8')); }
   catch { res.status(404).json({ error: 'Not found.' }); }
 });
 

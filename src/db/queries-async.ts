@@ -97,9 +97,12 @@ export async function insertContact(contact: Omit<Contact, 'id' | 'created_at'>)
   const result = await getAsyncDb().execute({
     sql: `INSERT INTO contacts (company, name, title, linkedin_url, email, connection, referral,
             outreach_sent, outreach_date, response, notes, application_id)
-          VALUES (@company, @name, @title, @linkedin_url, @email, @connection, @referral,
-            @outreach_sent, @outreach_date, @response, @notes, @application_id)`,
-    args: contact as Record<string, unknown>,
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    args: [
+      contact.company, contact.name, contact.title, contact.linkedin_url,
+      contact.email, contact.connection, contact.referral, contact.outreach_sent,
+      contact.outreach_date, contact.response, contact.notes, contact.application_id,
+    ],
   });
   return Number(result.lastInsertRowid);
 }
