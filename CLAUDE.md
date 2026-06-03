@@ -79,14 +79,19 @@ Store insights in `modes/_profile.md` and `config/profile.yml`.
 | "Compare these offers" | `modes/compare.md` |
 | "Find contacts at X" | `modes/network.md` |
 | "Research X company" | `modes/deep.md` |
-| "Prep for interview at X" | `modes/interview.md` |
-| "Generate CV PDF" | `modes/pdf.md` |
+| "Prep for interview at X" | `modes/interview-prep.md` |
+| "Generate CV PDF" | `modes/apply.md` |
+| "Generate LaTeX CV" | `modes/latex.md` |
 | "Help me apply" | `modes/apply.md` |
 | "Scan for new jobs" | Run `tsx src/commands/scan.ts` |
+| "Batch evaluate these URLs" | `modes/batch.md` → run `npm run batch` |
 | "What's my pipeline?" | `modes/tracker.md` |
 | "Follow-ups due?" | Run `tsx src/commands/followup.ts` |
+| "Analyze my rejections" / "What patterns do you see?" | `modes/patterns.md` → run `npm run patterns` |
 | "Negotiate this offer" | `modes/negotiate.md` |
 | "What skills am I missing?" | Query skills_gap table |
+| "Check if jobs are still open" | Run `npm run liveness` |
+| "Verify pipeline integrity" | Run `npm run verify` |
 | "Start dashboard" | Run `npm run dashboard` → http://localhost:3333 |
 | "Apply to this job" / "Generate application" / "Write cover letter" | `modes/apply.md` |
 | "What should I do today?" / "Morning briefing" | Run `npm run brief` |
@@ -169,6 +174,13 @@ This system filters for quality. **Every application a human reads costs someone
 | `tsx src/commands/doctor.ts` | Setup validator |
 | `npm run dashboard` | Web dashboard at :3333 |
 | `tsx src/commands/followup.ts` | Overdue follow-up list |
+| `npm run batch` | Batch evaluate URLs from batch/batch-input.tsv |
+| `npm run patterns` | Rejection pattern analysis |
+| `npm run liveness` | Check if job URLs are still active |
+| `npm run verify` | Pipeline integrity check |
+| `modes/interview-prep.md` | Interview research + STAR story bank |
+| `modes/latex.md` | LaTeX CV export (tectonic/pdflatex) |
+| `GEMINI.md` | Gemini CLI context (multi-agent support) |
 | WebSearch | Salary data, company research, contacts |
-| Playwright | Verify job postings, generate PDFs |
+| Playwright | Verify job postings, generate PDFs, liveness checks |
 | SQLite (`data/job-hunt.db`) | All pipeline data |

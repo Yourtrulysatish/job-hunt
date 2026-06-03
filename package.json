@@ -26,7 +26,11 @@
     "gmail": "tsx src/commands/gmail.ts",
     "gmail:auth": "tsx src/commands/gmail.ts auth",
     "linkedin": "tsx src/commands/linkedin.ts",
-    "linkedin:auth": "tsx src/commands/linkedin.ts auth"
+    "linkedin:auth": "tsx src/commands/linkedin.ts auth",
+    "patterns": "tsx src/commands/analyze-patterns.ts --summary",
+    "verify": "tsx src/commands/verify.ts",
+    "liveness": "tsx src/commands/liveness.ts",
+    "batch": "bash batch/batch-runner.sh"
   },
   "keywords": [
     "ai",
