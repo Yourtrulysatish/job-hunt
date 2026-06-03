@@ -3,336 +3,573 @@
 <head>
   <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Job Hunt</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
-    *{box-sizing:border-box}
-    body{background:#0d1117;color:#e6edf3;font-family:'SF Mono','Fira Code',monospace;font-size:13px}
-    .card{background:#161b22;border:1px solid #30363d;border-radius:8px;transition:border-color .15s}
-    .card:hover{border-color:#484f58}
-    input,select,textarea{background:#0d1117;border:1px solid #30363d;color:#e6edf3;border-radius:6px;padding:6px 10px;font-size:12px;font-family:inherit}
-    input:focus,select:focus,textarea:focus{outline:1px solid #1f6feb;border-color:#1f6feb}
-    button.btn{padding:5px 14px;border-radius:6px;font-size:12px;cursor:pointer;transition:all .15s;font-family:inherit}
-    button.btn-primary{background:#1f6feb;color:#fff;border:1px solid #1f6feb}
-    button.btn-primary:hover{background:#388bfd}
-    button.btn-ghost{background:transparent;color:#8b949e;border:1px solid #30363d}
-    button.btn-ghost:hover{color:#e6edf3;border-color:#484f58}
-    ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#0d1117}::-webkit-scrollbar-thumb{background:#30363d;border-radius:3px}
-    .tab-btn{color:#8b949e;border:1px solid transparent;cursor:pointer;padding:4px 12px;border-radius:6px;font-size:11px;font-family:inherit;transition:all .15s}
-    .tab-btn.active{color:#e6edf3;border-color:#30363d;background:#21262d}
-    .tab-btn:hover:not(.active){color:#e6edf3}
-    .status-pill{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;display:inline-block}
-    .pill-Evaluated{background:#1f6feb33;color:#58a6ff}.pill-Applied{background:#1a7f3733;color:#3fb950}
-    .pill-Interview{background:#9e6a0333;color:#d29922}.pill-Offer{background:#2ea04333;color:#56d364}
-    .pill-Rejected{background:#da363333;color:#f85149}.pill-Discarded,.pill-SKIP{background:#21262d;color:#8b949e}
-    .pill-Responded{background:#31366633;color:#8b949e}
-    .fit-strong{background:#0d4a1a;color:#56d364;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;display:inline-block}
-    .fit-good{background:#3a2e0a;color:#d29922;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;display:inline-block}
-    .fit-partial{background:#3a1e0a;color:#ffa657;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;display:inline-block}
-    .fit-weak{background:#21262d;color:#8b949e;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;display:inline-block}
-    .portal-pill{font-size:10px;padding:1px 7px;border-radius:10px;font-weight:600;display:inline-block}
-    .portal-greenhouse{background:#0d4a1a;color:#56d364}.portal-ashby{background:#1a2d5a;color:#79b8ff}
-    .portal-lever{background:#3a1a4a;color:#d2a8ff}.portal-workday{background:#4a2a0a;color:#ffa657}
-    .portal-remoteok{background:#1a3a1a;color:#a0e87a}.portal-remotive{background:#0d3a2a;color:#56d4a0}
-    .portal-himalayas{background:#2a1a3a;color:#c8a8ff}.portal-linkedin{background:#0a1e3a;color:#4a9eff}
-    .portal-wellfound{background:#2a0a1a;color:#ff7eb3}.portal-rss{background:#3a2a0a;color:#ffcc66}
-    .gmail-interview{color:#56d364}.gmail-offer{color:#d29922}.gmail-rejection{color:#f85149}.gmail-recruiter{color:#58a6ff}
-    .score-high{color:#3fb950}.score-mid{color:#d29922}.score-low{color:#f85149}
-    table{width:100%;border-collapse:collapse}th{text-align:left;color:#8b949e;padding:6px 8px;font-weight:500;font-size:11px}
-    td{padding:6px 8px;border-top:1px solid #21262d;font-size:12px}
-    tr:hover td{background:#161b22}
-    .overdue{border-left:3px solid #f85149}
-    .modal{display:none;position:fixed;inset:0;background:#0008;z-index:50;align-items:center;justify-content:center}
+    :root {
+      --bg:        #0c0c10;
+      --surface:   #111116;
+      --surface-2: #16161d;
+      --surface-3: #1c1c26;
+      --border:    #1e1e2c;
+      --border-2:  #2a2a3a;
+      --text:      #f0f0f8;
+      --text-2:    #8b8ba8;
+      --text-3:    #4a4a65;
+      --indigo:    #6366f1;
+      --indigo-dim:#6366f122;
+      --green:     #10b981;
+      --green-dim: #10b98120;
+      --amber:     #f59e0b;
+      --amber-dim: #f59e0b20;
+      --red:       #ef4444;
+      --red-dim:   #ef444420;
+      --blue:      #3b82f6;
+      --blue-dim:  #3b82f620;
+      --purple:    #a855f7;
+      --purple-dim:#a855f720;
+      --cyan:      #06b6d4;
+      --orange:    #f97316;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+    ::selection{background:var(--indigo);color:#fff}
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar{width:4px;height:4px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:4px}
+
+    /* ── Cards ── */
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;transition:border-color .2s,box-shadow .2s}
+    .card:hover{border-color:var(--border-2)}
+    .card-flat{background:var(--surface);border:1px solid var(--border);border-radius:12px}
+
+    /* ── Inputs ── */
+    input,select,textarea{
+      background:var(--surface-2);border:1px solid var(--border-2);color:var(--text);
+      border-radius:8px;padding:8px 12px;font-size:13px;font-family:'Inter',sans-serif;
+      transition:border-color .15s,box-shadow .15s;outline:none
+    }
+    input:focus,select:focus,textarea:focus{border-color:var(--indigo);box-shadow:0 0 0 3px var(--indigo-dim)}
+    input::placeholder{color:var(--text-3)}
+    select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234a4a65' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px}
+
+    /* ── Buttons ── */
+    .btn{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif;display:inline-flex;align-items:center;gap:6px;border:1px solid transparent}
+    .btn-primary{background:var(--indigo);color:#fff;border-color:var(--indigo)}
+    .btn-primary:hover{background:#4f46e5;box-shadow:0 0 20px var(--indigo-dim)}
+    .btn-primary:active{transform:scale(0.98)}
+    .btn-ghost{background:transparent;color:var(--text-2);border-color:var(--border-2)}
+    .btn-ghost:hover{color:var(--text);border-color:var(--border-2);background:var(--surface-2)}
+    .btn-danger{background:var(--red-dim);color:var(--red);border-color:var(--red)33}
+    .btn-danger:hover{background:var(--red-dim);box-shadow:0 0 12px var(--red-dim)}
+    .btn:disabled{opacity:.5;cursor:not-allowed;pointer-events:none}
+
+    /* ── Navigation ── */
+    .nav-tab{
+      color:var(--text-3);cursor:pointer;padding:6px 14px;font-size:13px;font-weight:500;
+      font-family:'Inter',sans-serif;transition:all .15s;border-radius:8px;
+      background:transparent;border:1px solid transparent;white-space:nowrap;
+      display:inline-flex;align-items:center;gap:5px
+    }
+    .nav-tab.active{color:var(--text);background:var(--surface-2);border-color:var(--border-2)}
+    .nav-tab:hover:not(.active){color:var(--text-2)}
+    .nav-badge{font-size:10px;font-weight:600;padding:1px 5px;border-radius:10px;background:var(--surface-3);color:var(--text-2)}
+    .nav-tab.active .nav-badge{background:var(--indigo-dim);color:var(--indigo)}
+
+    /* ── Status pills ── */
+    .pill{font-size:11px;padding:2px 9px;border-radius:20px;font-weight:600;display:inline-flex;align-items:center;gap:4px;letter-spacing:0.01em}
+    .pill::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0}
+    .pill-Evaluated{background:var(--blue-dim);color:var(--blue)}.pill-Evaluated::before{background:var(--blue)}
+    .pill-Applied{background:var(--green-dim);color:var(--green)}.pill-Applied::before{background:var(--green)}
+    .pill-Interview{background:var(--amber-dim);color:var(--amber)}.pill-Interview::before{background:var(--amber)}
+    .pill-Offer{background:#10b98130;color:#34d399}.pill-Offer::before{background:#34d399}
+    .pill-Rejected{background:var(--red-dim);color:var(--red)}.pill-Rejected::before{background:var(--red)}
+    .pill-Discarded,.pill-SKIP{background:var(--surface-3);color:var(--text-3)}.pill-Discarded::before,.pill-SKIP::before{background:var(--text-3)}
+    .pill-Responded{background:var(--purple-dim);color:var(--purple)}.pill-Responded::before{background:var(--purple)}
+
+    /* ── Fit badges ── */
+    .fit-strong{background:#10b98118;color:#34d399;border:1px solid #10b98130;font-size:11px;padding:2px 9px;border-radius:20px;font-weight:600;display:inline-block}
+    .fit-good{background:var(--amber-dim);color:var(--amber);border:1px solid #f59e0b30;font-size:11px;padding:2px 9px;border-radius:20px;font-weight:600;display:inline-block}
+    .fit-partial{background:#f9731620;color:var(--orange);border:1px solid #f9731630;font-size:11px;padding:2px 9px;border-radius:20px;font-weight:600;display:inline-block}
+    .fit-weak{background:var(--surface-3);color:var(--text-3);border:1px solid var(--border-2);font-size:11px;padding:2px 9px;border-radius:20px;font-weight:600;display:inline-block}
+
+    /* ── Portal badges ── */
+    .portal-pill{font-size:10px;padding:2px 8px;border-radius:6px;font-weight:600;display:inline-block;letter-spacing:0.02em}
+    .portal-greenhouse{background:#10b98115;color:#6ee7b7;border:1px solid #10b98125}
+    .portal-ashby{background:#3b82f615;color:#93c5fd;border:1px solid #3b82f625}
+    .portal-lever{background:#a855f715;color:#d8b4fe;border:1px solid #a855f725}
+    .portal-workday{background:#f59e0b15;color:#fcd34d;border:1px solid #f59e0b25}
+    .portal-remoteok{background:#10b98115;color:#6ee7b7;border:1px solid #10b98125}
+    .portal-remotive{background:#06b6d415;color:#67e8f9;border:1px solid #06b6d425}
+    .portal-himalayas{background:#a855f715;color:#d8b4fe;border:1px solid #a855f725}
+    .portal-linkedin{background:#3b82f615;color:#93c5fd;border:1px solid #3b82f625}
+    .portal-wellfound{background:#f9731615;color:#fdba74;border:1px solid #f9731625}
+    .portal-rss{background:#f59e0b15;color:#fcd34d;border:1px solid #f59e0b25}
+
+    /* ── Score colors ── */
+    .score-high{color:var(--green);font-family:'JetBrains Mono',monospace;font-weight:600}
+    .score-mid{color:var(--amber);font-family:'JetBrains Mono',monospace;font-weight:600}
+    .score-low{color:var(--red);font-family:'JetBrains Mono',monospace;font-weight:600}
+
+    /* ── Table ── */
+    table{width:100%;border-collapse:collapse}
+    th{text-align:left;color:var(--text-3);padding:8px 12px;font-weight:500;font-size:12px;letter-spacing:0.05em;text-transform:uppercase}
+    td{padding:10px 12px;border-top:1px solid var(--border);font-size:13px;vertical-align:middle}
+    tr:hover td{background:var(--surface-2)}
+    tbody tr:first-child td{border-top:none}
+
+    /* ── Follow-up cards ── */
+    .fu-card{position:relative;padding-left:16px}
+    .fu-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:0 3px 3px 0;background:var(--border-2)}
+    .fu-card.overdue::before{background:var(--red)}
+    .fu-card.due-today::before{background:var(--amber)}
+    .fu-card.upcoming::before{background:var(--green)}
+
+    /* ── Stat cards ── */
+    .stat-card{padding:20px 24px;border-radius:12px;background:var(--surface);border:1px solid var(--border);transition:all .2s}
+    .stat-card:hover{border-color:var(--border-2);transform:translateY(-1px);box-shadow:0 8px 32px rgba(0,0,0,.4)}
+    .stat-number{font-size:28px;font-weight:700;font-family:'JetBrains Mono',monospace;letter-spacing:-0.02em;line-height:1}
+    .stat-label{font-size:12px;color:var(--text-3);margin-top:6px;font-weight:500;text-transform:uppercase;letter-spacing:0.06em}
+    .stat-accent{width:32px;height:3px;border-radius:2px;margin-bottom:12px}
+
+    /* ── Gmail ── */
+    .gmail-interview{color:var(--green)}.gmail-offer{color:var(--amber)}.gmail-rejection{color:var(--red)}.gmail-recruiter{color:var(--blue)}
+
+    /* ── Modal ── */
+    .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:50;align-items:center;justify-content:center}
     .modal.open{display:flex}
-    .modal-box{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:24px;width:480px;max-width:95vw}
+    .modal-box{background:var(--surface);border:1px solid var(--border-2);border-radius:16px;padding:28px;width:500px;max-width:95vw;box-shadow:0 32px 80px rgba(0,0,0,.6)}
 
     /* ── Gamification ── */
-    .rank-E{color:#8b949e}.rank-D{color:#3fb950}.rank-C{color:#58a6ff}
-    .rank-B{color:#bc8cff}.rank-A{color:#ffa657}.rank-S{color:#d29922}
-    .rank-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:4px;letter-spacing:1px}
-    .badge-E{background:#21262d;color:#8b949e}.badge-D{background:#0d4a1a;color:#3fb950}
-    .badge-C{background:#1a2d5a;color:#58a6ff}.badge-B{background:#2d1a5a;color:#bc8cff}
-    .badge-A{background:#4a2a0a;color:#ffa657}.badge-S{background:#3a2e0a;color:#d29922}
-    .xp-bar-bg{background:#21262d;border-radius:4px;height:8px;overflow:hidden}
-    .xp-bar-fill{height:100%;border-radius:4px;transition:width 1s ease}
-    .quest-done{opacity:0.4;text-decoration:line-through}
-    .ach-locked{opacity:0.35;filter:grayscale(1)}
-    .dungeon-S{color:#d29922;font-weight:700}.dungeon-A{color:#ffa657;font-weight:700}
-    .dungeon-B{color:#bc8cff;font-weight:700}.dungeon-C{color:#58a6ff}
-    .dungeon-D{color:#3fb950}.dungeon-E{color:#8b949e}
+    .rank-E{color:#71717a}.rank-D{color:var(--green)}.rank-C{color:var(--blue)}
+    .rank-B{color:var(--purple)}.rank-A{color:var(--orange)}.rank-S{color:var(--amber)}
+    .rank-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:6px;letter-spacing:1.5px;font-family:'JetBrains Mono',monospace}
+    .badge-E{background:var(--surface-3);color:#71717a;border:1px solid var(--border-2)}
+    .badge-D{background:var(--green-dim);color:var(--green);border:1px solid #10b98130}
+    .badge-C{background:var(--blue-dim);color:var(--blue);border:1px solid #3b82f630}
+    .badge-B{background:var(--purple-dim);color:var(--purple);border:1px solid #a855f730}
+    .badge-A{background:#f9731620;color:var(--orange);border:1px solid #f9731630}
+    .badge-S{background:var(--amber-dim);color:var(--amber);border:1px solid #f59e0b30}
+    .xp-bar-bg{background:var(--surface-3);border-radius:6px;height:6px;overflow:hidden}
+    .xp-bar-fill{height:100%;border-radius:6px;transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+    .quest-done{opacity:.4;text-decoration:line-through}
+    .ach-locked{opacity:.3;filter:grayscale(1) blur(0.2px)}
 
-    /* achievement toast */
-    #toast-stack{position:fixed;bottom:24px;right:24px;z-index:100;display:flex;flex-direction:column;gap:10px;pointer-events:none}
-    .toast{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:14px 18px;min-width:260px;max-width:320px;
-      animation:slideIn .3s ease;pointer-events:auto}
-    .toast.rank-up{border-color:#d29922;background:#1a150a}
-    .toast.quest{border-color:#3fb950;background:#0d1a0d}
-    @keyframes slideIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
-    @keyframes slideOut{from{transform:translateX(0);opacity:1}to{transform:translateX(120%);opacity:0}}
-    .toast.hiding{animation:slideOut .3s ease forwards}
+    /* ── Hunter character card ── */
+    .hunter-card{
+      background:linear-gradient(135deg, var(--surface) 0%, var(--surface-2) 100%);
+      border:1px solid var(--border-2);border-radius:16px;padding:28px;
+      position:relative;overflow:hidden
+    }
+    .hunter-card::before{
+      content:'';position:absolute;top:-40%;right:-10%;width:300px;height:300px;
+      border-radius:50%;background:radial-gradient(circle, var(--indigo-dim) 0%, transparent 70%);
+      pointer-events:none
+    }
+
+    /* ── Toast ── */
+    #toast-stack{position:fixed;bottom:24px;right:24px;z-index:100;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+    .toast{
+      background:var(--surface);border:1px solid var(--border-2);border-radius:12px;
+      padding:14px 18px;min-width:280px;max-width:340px;
+      animation:slideIn .3s cubic-bezier(.4,0,.2,1);pointer-events:auto;
+      box-shadow:0 16px 48px rgba(0,0,0,.6)
+    }
+    .toast.rank-up{border-color:var(--amber);box-shadow:0 0 40px var(--amber-dim)}
+    .toast.quest{border-color:var(--green);box-shadow:0 0 24px var(--green-dim)}
+    @keyframes slideIn{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}
+    @keyframes slideOut{from{transform:translateX(0);opacity:1}to{transform:translateX(110%);opacity:0}}
+    .toast.hiding{animation:slideOut .25s ease forwards}
+
+    /* ── Inbox job card ── */
+    .job-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;transition:all .2s;display:flex;flex-direction:column;gap:0}
+    .job-card:hover{border-color:var(--border-2);transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,0,0,.4)}
+    .job-card.checked{opacity:.45}
+
+    /* ── Divider ── */
+    .divider{border:none;border-top:1px solid var(--border);margin:0}
+
+    /* ── Section header ── */
+    .section-title{font-size:13px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.08em}
+
+    /* ── Empty state ── */
+    .empty-state{text-align:center;padding:48px 24px}
+    .empty-state .icon{font-size:36px;margin-bottom:12px;filter:grayscale(.4)}
+    .empty-state .title{font-size:15px;font-weight:600;color:var(--text-2);margin-bottom:6px}
+    .empty-state .sub{font-size:13px;color:var(--text-3)}
+
+    /* ── Checkbox (quest) ── */
+    .quest-check{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--border-2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;transition:all .15s}
+    .quest-check.done{background:var(--green-dim);border-color:var(--green);color:var(--green)}
   </style>
 </head>
-<body class="min-h-screen">
+<body>
 
-<!-- Header -->
-<header class="border-b border-gray-800 px-5 py-3 flex items-center justify-between sticky top-0 z-40" style="background:#0d1117bb;backdrop-filter:blur(8px)">
-  <div class="flex items-center gap-3">
-    <span class="font-bold text-white">Job Hunt</span>
-    <nav class="flex gap-1 flex-wrap">
-      <button onclick="show('dashboard')"  id="tab-dashboard"  class="tab-btn active">Dashboard</button>
-      <button onclick="show('inbox')"      id="tab-inbox"      class="tab-btn">Inbox <span id="b-inbox"  class="text-gray-600"></span></button>
-      <button onclick="show('recs')"       id="tab-recs"       class="tab-btn">★ Picks <span id="b-recs"  class="text-gray-600"></span></button>
-      <button onclick="show('tracker')"   id="tab-tracker"    class="tab-btn">Tracker</button>
-      <button onclick="show('followups')" id="tab-followups"  class="tab-btn">Follow-ups <span id="b-fu" class="text-gray-600"></span></button>
-      <button onclick="show('contacts')"  id="tab-contacts"   class="tab-btn">CRM <span id="b-contacts" class="text-gray-600"></span></button>
-      <button onclick="show('gmail')"     id="tab-gmail"      class="tab-btn">Gmail <span id="b-gmail" class="text-gray-600"></span></button>
-      <button onclick="show('hunter')"   id="tab-hunter"   class="tab-btn">⚔️ Hunter</button>
-      <button onclick="show('profile')"   id="tab-profile"    class="tab-btn">Profile</button>
+<!-- ── Header ──────────────────────────────────────────────────────── -->
+<header style="background:rgba(12,12,16,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:40">
+  <div style="max-width:1400px;margin:0 auto;padding:0 20px;height:52px;display:flex;align-items:center;gap:16px">
+    <!-- Logo -->
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+      <div style="width:26px;height:26px;background:var(--indigo);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px">⚡</div>
+      <span style="font-weight:700;font-size:14px;letter-spacing:-0.01em">Job Hunt</span>
+    </div>
+    <!-- Nav -->
+    <nav style="display:flex;gap:2px;overflow-x:auto;flex:1;scrollbar-width:none">
+      <button onclick="show('dashboard')"  id="tab-dashboard"  class="nav-tab active">Dashboard</button>
+      <button onclick="show('inbox')"      id="tab-inbox"      class="nav-tab">Inbox <span id="b-inbox"  class="nav-badge"></span></button>
+      <button onclick="show('recs')"       id="tab-recs"       class="nav-tab">★ Picks <span id="b-recs"  class="nav-badge"></span></button>
+      <button onclick="show('tracker')"    id="tab-tracker"    class="nav-tab">Tracker</button>
+      <button onclick="show('followups')"  id="tab-followups"  class="nav-tab">Follow-ups <span id="b-fu" class="nav-badge"></span></button>
+      <button onclick="show('contacts')"   id="tab-contacts"   class="nav-tab">CRM <span id="b-contacts" class="nav-badge"></span></button>
+      <button onclick="show('gmail')"      id="tab-gmail"      class="nav-tab">Gmail <span id="b-gmail" class="nav-badge"></span></button>
+      <button onclick="show('hunter')"     id="tab-hunter"     class="nav-tab">⚔️ Hunter</button>
+      <button onclick="show('profile')"    id="tab-profile"    class="nav-tab">Profile</button>
     </nav>
-  </div>
-  <div class="flex items-center gap-2">
-    <span id="ts" class="text-gray-700 text-xs"></span>
-    <button onclick="loadAll()" class="btn btn-ghost text-xs">Refresh</button>
+    <!-- Right side -->
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+      <span id="ts" style="font-size:12px;color:var(--text-3)"></span>
+      <button onclick="loadAll()" class="btn btn-ghost" style="padding:5px 12px;font-size:12px">↻ Refresh</button>
+    </div>
   </div>
 </header>
 
-<!-- ═══ DASHBOARD ═══════════════════════════════════════════════════ -->
-<div id="view-dashboard" class="max-w-7xl mx-auto p-5 space-y-5">
-  <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
-    <div class="card p-4 text-center"><div id="s-total"      class="text-2xl font-bold text-white">—</div><div class="text-xs text-gray-600 mt-1">Applications</div></div>
-    <div class="card p-4 text-center"><div id="s-score"      class="text-2xl font-bold text-yellow-400">—</div><div class="text-xs text-gray-600 mt-1">Avg Score</div></div>
-    <div class="card p-4 text-center"><div id="s-interview"  class="text-2xl font-bold text-blue-400">—</div><div class="text-xs text-gray-600 mt-1">Interviews</div></div>
-    <div class="card p-4 text-center"><div id="s-offer"      class="text-2xl font-bold text-green-400">—</div><div class="text-xs text-gray-600 mt-1">Offers</div></div>
-    <div class="card p-4 text-center"><div id="s-inbox"      class="text-2xl font-bold text-purple-400">—</div><div class="text-xs text-gray-600 mt-1">In Inbox</div></div>
-  </div>
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-    <div class="lg:col-span-2 card p-4">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="font-semibold text-gray-300">Recent Applications</h2>
-        <button onclick="show('tracker')" class="text-xs text-blue-400 hover:underline">View all →</button>
-      </div>
-      <table><thead><tr><th>#</th><th>Company</th><th>Role</th><th>Score</th><th>Status</th><th>Date</th></tr></thead>
-      <tbody id="d-apps"></tbody></table>
-      <div id="d-apps-empty" class="hidden text-center text-gray-600 py-8 text-xs">No applications yet.<br>Open Claude Code in this directory and paste a job URL.</div>
+<!-- ═══ DASHBOARD ═════════════════════════════════════════════════════ -->
+<div id="view-dashboard" style="max-width:1400px;margin:0 auto;padding:24px 20px">
+
+  <!-- Stat cards -->
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px">
+    <div class="stat-card">
+      <div class="stat-accent" style="background:var(--indigo)"></div>
+      <div id="s-total" class="stat-number" style="color:var(--text)">—</div>
+      <div class="stat-label">Applications</div>
     </div>
-    <div class="space-y-4">
-      <div class="card p-4"><h2 class="text-xs text-gray-500 mb-3">By Status</h2><canvas id="c-status" height="170"></canvas></div>
-      <div class="card p-4"><h2 class="text-xs text-gray-500 mb-3">Skills Gap</h2>
-        <div id="d-skills" class="space-y-2"></div>
-        <div id="d-skills-empty" class="text-gray-600 text-xs">Evaluate jobs to track skill demand.</div>
+    <div class="stat-card">
+      <div class="stat-accent" style="background:var(--amber)"></div>
+      <div id="s-score" class="stat-number" style="color:var(--amber)">—</div>
+      <div class="stat-label">Avg Score</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-accent" style="background:var(--blue)"></div>
+      <div id="s-interview" class="stat-number" style="color:var(--blue)">—</div>
+      <div class="stat-label">Interviews</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-accent" style="background:var(--green)"></div>
+      <div id="s-offer" class="stat-number" style="color:var(--green)">—</div>
+      <div class="stat-label">Offers</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-accent" style="background:var(--purple)"></div>
+      <div id="s-inbox" class="stat-number" style="color:var(--purple)">—</div>
+      <div class="stat-label">In Inbox</div>
+    </div>
+  </div>
+
+  <!-- Main grid -->
+  <div style="display:grid;grid-template-columns:1fr 340px;gap:16px">
+    <!-- Recent applications -->
+    <div class="card-flat" style="overflow:hidden">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)">
+        <span style="font-size:14px;font-weight:600">Recent Applications</span>
+        <button onclick="show('tracker')" style="font-size:12px;color:var(--indigo);cursor:pointer;background:none;border:none;font-family:inherit">View all →</button>
+      </div>
+      <table>
+        <thead><tr>
+          <th style="padding-left:20px">#</th><th>Company</th><th>Role</th><th>Score</th><th>Status</th><th>Date</th>
+        </tr></thead>
+        <tbody id="d-apps"></tbody>
+      </table>
+      <div id="d-apps-empty" class="hidden empty-state">
+        <div class="icon">📋</div>
+        <div class="title">No applications yet</div>
+        <div class="sub">Paste a job URL in Claude Code to get started</div>
+      </div>
+    </div>
+
+    <!-- Right column -->
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <!-- Status chart -->
+      <div class="card-flat" style="padding:16px">
+        <div style="font-size:12px;color:var(--text-3);margin-bottom:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em">By Status</div>
+        <canvas id="c-status" height="160"></canvas>
+      </div>
+      <!-- Skills gap -->
+      <div class="card-flat" style="padding:16px">
+        <div style="font-size:12px;color:var(--text-3);margin-bottom:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em">Skills Gap</div>
+        <div id="d-skills" style="display:flex;flex-direction:column;gap:8px"></div>
+        <div id="d-skills-empty" style="color:var(--text-3);font-size:12px">Evaluate jobs to track skill demand.</div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ═══ INBOX ════════════════════════════════════════════════════════ -->
-<div id="view-inbox" class="hidden max-w-7xl mx-auto p-5 space-y-4">
+<!-- ═══ INBOX ══════════════════════════════════════════════════════════ -->
+<div id="view-inbox" class="hidden" style="max-width:1400px;margin:0 auto;padding:24px 20px">
 
-  <!-- Search + scan bar -->
-  <div class="card p-4 space-y-3">
-    <div class="flex items-center gap-3">
-      <div class="relative flex-1">
-        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">🔍</span>
-        <input id="i-search" placeholder="Search jobs — company, role, keyword…"
-          class="w-full pl-8 text-sm" style="height:38px" oninput="filterInbox()"/>
+  <!-- Search + actions bar -->
+  <div class="card-flat" style="padding:16px 20px;margin-bottom:16px">
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px">
+      <div style="position:relative;flex:1">
+        <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-3);pointer-events:none">🔍</span>
+        <input id="i-search" placeholder="Search company, role, keyword…" style="width:100%;padding-left:36px;height:38px" oninput="filterInbox()"/>
       </div>
-      <button id="scan-btn" onclick="runScan()" class="btn btn-primary flex items-center gap-2 shrink-0" style="height:38px">
-        <span id="scan-icon">⚡</span>
-        <span id="scan-label">Scan for Jobs</span>
+      <button id="scan-btn" onclick="runScan()" class="btn btn-primary" style="height:38px;padding:0 18px;flex-shrink:0">
+        <span id="scan-icon">⚡</span><span id="scan-label">Scan for Jobs</span>
       </button>
-      <button id="li-btn" onclick="runLinkedIn()" class="btn btn-ghost flex items-center gap-2 shrink-0" style="height:38px" title="Requires: npm run linkedin:auth first">
-        <span id="li-icon">🔗</span>
-        <span id="li-label">LinkedIn</span>
+      <button id="li-btn" onclick="runLinkedIn()" class="btn btn-ghost" style="height:38px;flex-shrink:0" title="Requires: npm run linkedin:auth first">
+        <span id="li-icon">🔗</span><span id="li-label">LinkedIn</span>
       </button>
     </div>
-    <div class="flex flex-wrap gap-2 items-center">
-      <select id="i-fit"    onchange="filterInbox()"><option value="">All fits</option><option value="4">Strong (4+)</option><option value="3">Good (3+)</option></select>
-      <select id="i-portal" onchange="filterInbox()"><option value="">All sources</option>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+      <select id="i-fit" onchange="filterInbox()" style="height:32px;font-size:12px">
+        <option value="">All fits</option><option value="4">Strong (4+)</option><option value="3">Good (3+)</option>
+      </select>
+      <select id="i-portal" onchange="filterInbox()" style="height:32px;font-size:12px">
+        <option value="">All sources</option>
         <option>greenhouse</option><option>ashby</option><option>lever</option>
         <option>remoteok</option><option>remotive</option><option>linkedin</option>
-        <option>wellfound</option><option>rss</option></select>
-      <select id="i-company" onchange="filterInbox()"><option value="">All companies</option></select>
-      <label class="flex items-center gap-1 text-xs text-gray-500 cursor-pointer">
+        <option>wellfound</option><option>rss</option>
+      </select>
+      <select id="i-company" onchange="filterInbox()" style="height:32px;font-size:12px"><option value="">All companies</option></select>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-3);cursor:pointer">
         <input type="checkbox" id="i-hide-weak" onchange="filterInbox()"> Hide weak matches
       </label>
-      <span id="i-count" class="text-xs text-gray-500 ml-auto"></span>
-      <span id="scan-status" class="text-xs text-gray-600"></span>
+      <span style="margin-left:auto;display:flex;align-items:center;gap:16px">
+        <span id="i-count" style="font-size:12px;color:var(--text-3)"></span>
+        <span id="scan-status" style="font-size:12px;color:var(--text-3)"></span>
+      </span>
     </div>
   </div>
 
-  <div id="i-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"></div>
-  <div id="i-empty" class="hidden card p-12 text-center space-y-4">
-    <div class="text-4xl">🔍</div>
-    <div class="text-gray-400 font-semibold">No jobs in your inbox yet</div>
-    <div class="text-gray-600 text-sm">Click <strong class="text-white">Scan for Jobs</strong> above to search across 50+ companies and job boards.</div>
-    <button onclick="runScan()" class="btn btn-primary mx-auto">⚡ Scan for Jobs Now</button>
+  <div id="i-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px"></div>
+  <div id="i-empty" class="hidden card-flat empty-state" style="margin-top:8px">
+    <div class="icon">🔍</div>
+    <div class="title">No jobs in your inbox yet</div>
+    <div class="sub" style="margin-bottom:16px">Click <strong style="color:var(--text)">Scan for Jobs</strong> to search across 50+ companies.</div>
+    <button onclick="runScan()" class="btn btn-primary" style="margin:0 auto">⚡ Scan Now</button>
   </div>
 </div>
 
-<!-- ═══ RECOMMENDATIONS ══════════════════════════════════════════════ -->
-<div id="view-recs" class="hidden max-w-3xl mx-auto p-5 space-y-4">
-  <div class="card p-4"><h2 class="font-semibold text-white">Top Picks For You</h2>
-    <p class="text-xs text-gray-500 mt-1">Jobs scored ≥ 3.5 — partnership/BD/growth, Web3/AI domain, remote, senior.</p></div>
-  <div id="r-list" class="space-y-3"></div>
-  <div id="r-empty" class="hidden card p-8 text-center text-gray-600">No strong matches yet. Run <code class="text-blue-400">npm run scan</code></div>
-</div>
-
-<!-- ═══ TRACKER ══════════════════════════════════════════════════════ -->
-<div id="view-tracker" class="hidden max-w-7xl mx-auto p-5 space-y-4">
-  <div class="card p-3 flex flex-wrap gap-2 items-center">
-    <input id="t-company" placeholder="Company…" class="w-36" oninput="filterTracker()"/>
-    <select id="t-status" onchange="filterTracker()"><option value="">All statuses</option>
-      <option>Evaluated</option><option>Applied</option><option>Interview</option><option>Offer</option><option>Rejected</option><option>Discarded</option><option>SKIP</option></select>
-    <select id="t-score"  onchange="filterTracker()"><option value="">Any score</option><option value="4.5">4.5+</option><option value="4.0">4.0+</option><option value="3.5">3.5+</option></select>
-    <span id="t-count" class="text-xs text-gray-600 ml-auto"></span>
+<!-- ═══ PICKS ══════════════════════════════════════════════════════════ -->
+<div id="view-recs" class="hidden" style="max-width:800px;margin:0 auto;padding:24px 20px">
+  <div class="card-flat" style="padding:16px 20px;margin-bottom:16px">
+    <div style="font-size:15px;font-weight:600;margin-bottom:4px">Top Picks For You</div>
+    <div style="font-size:13px;color:var(--text-3)">Scored ≥ 3.5 — partnership/BD/growth, Web3/AI domain, remote, senior.</div>
   </div>
-  <div class="card overflow-auto">
-    <table><thead><tr><th>#</th><th>Company</th><th>Role</th><th>Score</th><th>Status</th><th>Date</th><th>Notes</th></tr></thead>
-    <tbody id="t-body"></tbody></table>
-    <div id="t-empty" class="hidden text-center text-gray-600 py-8 text-xs">No applications. Evaluate a job in Claude Code first.</div>
+  <div id="r-list" style="display:flex;flex-direction:column;gap:10px"></div>
+  <div id="r-empty" class="hidden card-flat empty-state">
+    <div class="icon">⭐</div>
+    <div class="title">No strong matches yet</div>
+    <div class="sub">Run <code style="color:var(--indigo);background:var(--surface-3);padding:1px 6px;border-radius:4px">npm run scan</code> to find jobs</div>
   </div>
 </div>
 
-<!-- ═══ FOLLOW-UPS ═══════════════════════════════════════════════════ -->
-<div id="view-followups" class="hidden max-w-3xl mx-auto p-5 space-y-3">
-  <div class="card p-4"><h2 class="font-semibold text-white">Follow-up Manager</h2>
-    <p class="text-xs text-gray-500 mt-1">Auto-scheduled when you record an application. Mark done to keep the pipeline clean.</p></div>
-  <div id="fu-list" class="space-y-2"></div>
-  <div id="fu-empty" class="hidden card p-8 text-center text-gray-600">No pending follow-ups. You're on top of it.</div>
+<!-- ═══ TRACKER ════════════════════════════════════════════════════════ -->
+<div id="view-tracker" class="hidden" style="max-width:1400px;margin:0 auto;padding:24px 20px">
+  <div class="card-flat" style="padding:12px 16px;margin-bottom:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+    <input id="t-company" placeholder="Filter by company…" style="width:160px;height:32px;font-size:12px" oninput="filterTracker()"/>
+    <select id="t-status" onchange="filterTracker()" style="height:32px;font-size:12px">
+      <option value="">All statuses</option>
+      <option>Evaluated</option><option>Applied</option><option>Interview</option>
+      <option>Offer</option><option>Rejected</option><option>Discarded</option><option>SKIP</option>
+    </select>
+    <select id="t-score" onchange="filterTracker()" style="height:32px;font-size:12px">
+      <option value="">Any score</option><option value="4.5">4.5+</option><option value="4.0">4.0+</option><option value="3.5">3.5+</option>
+    </select>
+    <span id="t-count" style="font-size:12px;color:var(--text-3);margin-left:auto"></span>
+  </div>
+  <div class="card-flat" style="overflow:auto">
+    <table>
+      <thead><tr><th>#</th><th>Company</th><th>Role</th><th>Score</th><th>Status</th><th>Date</th><th>Notes</th></tr></thead>
+      <tbody id="t-body"></tbody>
+    </table>
+    <div id="t-empty" class="hidden empty-state">
+      <div class="icon">📊</div>
+      <div class="title">No applications yet</div>
+      <div class="sub">Evaluate a job in Claude Code first</div>
+    </div>
+  </div>
 </div>
 
-<!-- ═══ CONTACTS / CRM ════════════════════════════════════════════════ -->
-<div id="view-contacts" class="hidden max-w-5xl mx-auto p-5 space-y-4">
-  <div class="flex items-center justify-between">
-    <div class="card p-4 flex-1 mr-4"><h2 class="font-semibold text-white">Contact CRM</h2>
-      <p class="text-xs text-gray-500 mt-1">Recruiters, hiring managers, warm contacts. Track outreach and follow-ups.</p></div>
+<!-- ═══ FOLLOW-UPS ═════════════════════════════════════════════════════ -->
+<div id="view-followups" class="hidden" style="max-width:720px;margin:0 auto;padding:24px 20px">
+  <div class="card-flat" style="padding:16px 20px;margin-bottom:16px">
+    <div style="font-size:15px;font-weight:600;margin-bottom:4px">Follow-up Manager</div>
+    <div style="font-size:13px;color:var(--text-3)">Auto-scheduled when you record an application. Mark done to keep the pipeline clean.</div>
+  </div>
+  <div id="fu-list" style="display:flex;flex-direction:column;gap:8px"></div>
+  <div id="fu-empty" class="hidden card-flat empty-state">
+    <div class="icon">✅</div>
+    <div class="title">You're on top of it</div>
+    <div class="sub">No pending follow-ups</div>
+  </div>
+</div>
+
+<!-- ═══ CRM / CONTACTS ════════════════════════════════════════════════ -->
+<div id="view-contacts" class="hidden" style="max-width:1100px;margin:0 auto;padding:24px 20px">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+    <div class="card-flat" style="padding:16px 20px;flex:1">
+      <div style="font-size:15px;font-weight:600;margin-bottom:4px">Contact CRM</div>
+      <div style="font-size:13px;color:var(--text-3)">Recruiters, hiring managers, warm contacts.</div>
+    </div>
     <button onclick="openContactModal()" class="btn btn-primary">+ Add Contact</button>
   </div>
-  <div class="card overflow-auto">
-    <table><thead><tr><th>Name</th><th>Company</th><th>Title</th><th>Connection</th><th>Outreach</th><th>LinkedIn</th><th>Notes</th></tr></thead>
-    <tbody id="c-body"></tbody></table>
-    <div id="c-empty" class="hidden text-center text-gray-600 py-8 text-xs">No contacts yet. Add them after you identify hiring managers for target roles.</div>
+  <div class="card-flat" style="overflow:auto">
+    <table>
+      <thead><tr><th>Name</th><th>Company</th><th>Title</th><th>Connection</th><th>Outreach</th><th>LinkedIn</th><th>Notes</th></tr></thead>
+      <tbody id="c-body"></tbody>
+    </table>
+    <div id="c-empty" class="hidden empty-state">
+      <div class="icon">👥</div>
+      <div class="title">No contacts yet</div>
+      <div class="sub">Add hiring managers and recruiters for target roles</div>
+    </div>
   </div>
 </div>
 
-<!-- ═══ GMAIL ════════════════════════════════════════════════════════ -->
-<div id="view-gmail" class="hidden max-w-4xl mx-auto p-5 space-y-4">
-  <div class="card p-4 space-y-2">
-    <h2 class="font-semibold text-white">Gmail Integration</h2>
-    <p class="text-xs text-gray-500">Auto-scans inbox for recruiter emails, interview invites, and rejections.</p>
-    <div class="flex gap-2 mt-2">
-      <code class="text-xs text-blue-400 bg-gray-900 px-3 py-1 rounded">npm run gmail:auth</code>
-      <span class="text-xs text-gray-600 self-center">→ one-time setup</span>
-      <code class="text-xs text-blue-400 bg-gray-900 px-3 py-1 rounded ml-4">npm run gmail</code>
-      <span class="text-xs text-gray-600 self-center">→ scan inbox</span>
+<!-- ═══ GMAIL ══════════════════════════════════════════════════════════ -->
+<div id="view-gmail" class="hidden" style="max-width:800px;margin:0 auto;padding:24px 20px">
+  <div class="card-flat" style="padding:20px;margin-bottom:16px">
+    <div style="font-size:15px;font-weight:600;margin-bottom:4px">Gmail Integration</div>
+    <div style="font-size:13px;color:var(--text-3);margin-bottom:14px">Auto-scans inbox for recruiter emails, interview invites, and rejections.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <code style="font-size:12px;color:var(--indigo);background:var(--surface-3);padding:4px 10px;border-radius:6px;font-family:'JetBrains Mono',monospace">npm run gmail:auth</code>
+      <span style="font-size:12px;color:var(--text-3);align-self:center">→ one-time setup</span>
+      <code style="font-size:12px;color:var(--indigo);background:var(--surface-3);padding:4px 10px;border-radius:6px;font-family:'JetBrains Mono',monospace;margin-left:8px">npm run gmail</code>
+      <span style="font-size:12px;color:var(--text-3);align-self:center">→ scan inbox</span>
     </div>
   </div>
-  <div id="g-list" class="space-y-2"></div>
-  <div id="g-empty" class="hidden card p-8 text-center text-gray-600 text-xs">
-    No Gmail threads yet.<br><br>
-    Setup: get credentials from Google Cloud Console → save as <code>config/gmail-credentials.json</code> → run <code class="text-blue-400">npm run gmail:auth</code> → run <code class="text-blue-400">npm run gmail</code>
+  <div id="g-list" style="display:flex;flex-direction:column;gap:8px"></div>
+  <div id="g-empty" class="hidden card-flat empty-state">
+    <div class="icon">📬</div>
+    <div class="title">No Gmail threads yet</div>
+    <div class="sub">Get credentials from Google Cloud Console → save as <code style="color:var(--indigo)">config/gmail-credentials.json</code> → run <code style="color:var(--indigo)">npm run gmail:auth</code></div>
   </div>
 </div>
 
-<!-- ═══ PROFILE ══════════════════════════════════════════════════════ -->
-<div id="view-profile" class="hidden max-w-4xl mx-auto p-5 space-y-4">
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div class="card p-5 space-y-3" id="p-info">
-      <h2 class="font-semibold text-white">Your Profile</h2>
-      <div id="p-fields" class="space-y-2 text-xs"></div>
+<!-- ═══ PROFILE ════════════════════════════════════════════════════════ -->
+<div id="view-profile" class="hidden" style="max-width:900px;margin:0 auto;padding:24px 20px">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+    <div class="card-flat" style="padding:20px" id="p-info">
+      <div style="font-size:14px;font-weight:600;margin-bottom:14px">Your Profile</div>
+      <div id="p-fields" style="display:flex;flex-direction:column;gap:8px"></div>
     </div>
-    <div class="card p-5 space-y-3">
-      <h2 class="font-semibold text-white">Target Roles</h2>
-      <div id="p-targets" class="space-y-1 text-xs"></div>
+    <div class="card-flat" style="padding:20px">
+      <div style="font-size:14px;font-weight:600;margin-bottom:14px">Target Roles</div>
+      <div id="p-targets" style="display:flex;flex-direction:column;gap:6px"></div>
     </div>
   </div>
-  <div class="card p-5">
-    <h2 class="font-semibold text-white mb-3">CV Summary</h2>
-    <pre id="p-cv" class="text-xs text-gray-400 whitespace-pre-wrap overflow-auto max-h-64"></pre>
+  <div class="card-flat" style="padding:20px">
+    <div style="font-size:14px;font-weight:600;margin-bottom:14px">CV Summary</div>
+    <pre id="p-cv" style="font-size:12px;color:var(--text-2);white-space:pre-wrap;overflow:auto;max-height:300px;font-family:'JetBrains Mono',monospace;line-height:1.6"></pre>
   </div>
 </div>
 
-<!-- ═══ HUNTER ═══════════════════════════════════════════════════════ -->
-<div id="view-hunter" class="hidden max-w-5xl mx-auto p-5 space-y-5">
+<!-- ═══ HUNTER ═════════════════════════════════════════════════════════ -->
+<div id="view-hunter" class="hidden" style="max-width:1000px;margin:0 auto;padding:24px 20px;display:flex;flex-direction:column;gap:16px">
 
   <!-- Character card -->
-  <div class="card p-6 space-y-4" style="background:linear-gradient(135deg,#0d1117 0%,#161b22 100%);border-color:#30363d">
-    <div class="flex items-start gap-5 flex-wrap">
-      <div class="flex-1 min-w-0 space-y-3">
-        <div class="flex items-center gap-3 flex-wrap">
+  <div class="hunter-card">
+    <div style="display:flex;align-items:flex-start;gap:24px;flex-wrap:wrap">
+      <div style="flex:1;min-width:0">
+        <!-- Rank + name -->
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">
           <span id="h-rank-badge" class="rank-badge badge-E">E-RANK</span>
-          <span id="h-name" class="text-xl font-bold text-white">Hunter</span>
-          <span id="h-level" class="text-gray-500 text-sm"></span>
-          <span id="h-streak" class="text-orange-400 text-sm font-semibold"></span>
+          <span id="h-name" style="font-size:20px;font-weight:700;letter-spacing:-0.02em">Hunter</span>
+          <span id="h-streak" style="color:var(--orange);font-size:13px;font-weight:600"></span>
         </div>
-        <div class="text-xs text-gray-500" id="h-rank-desc"></div>
+        <div id="h-rank-desc" style="font-size:13px;color:var(--text-3);margin-bottom:16px"></div>
+        <!-- Level -->
+        <div id="h-level" style="font-size:12px;color:var(--text-3);margin-bottom:10px"></div>
         <!-- XP bar -->
         <div>
-          <div class="flex justify-between text-xs mb-1">
-            <span class="text-gray-500">XP Progress</span>
-            <span id="h-xp-text" class="text-gray-400"></span>
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px">
+            <span style="color:var(--text-3)">XP Progress</span>
+            <span id="h-xp-text" style="color:var(--text-2);font-family:'JetBrains Mono',monospace"></span>
           </div>
           <div class="xp-bar-bg">
-            <div id="h-xp-bar" class="xp-bar-fill" style="width:0%;background:#3fb950"></div>
+            <div id="h-xp-bar" class="xp-bar-fill" style="width:0%;background:var(--green)"></div>
           </div>
-          <div id="h-xp-next" class="text-xs text-gray-600 mt-1"></div>
+          <div id="h-xp-next" style="font-size:11px;color:var(--text-3);margin-top:6px"></div>
         </div>
       </div>
-      <!-- Stats grid -->
-      <div class="grid grid-cols-3 gap-3 shrink-0">
-        <div class="text-center"><div id="hs-apps"  class="text-2xl font-bold text-blue-400">0</div><div class="text-xs text-gray-600">Applied</div></div>
-        <div class="text-center"><div id="hs-int"   class="text-2xl font-bold text-green-400">0</div><div class="text-xs text-gray-600">Interviews</div></div>
-        <div class="text-center"><div id="hs-offers" class="text-2xl font-bold text-yellow-400">0</div><div class="text-xs text-gray-600">Offers</div></div>
-        <div class="text-center"><div id="hs-eval"   class="text-2xl font-bold text-purple-400">0</div><div class="text-xs text-gray-600">Evaluated</div></div>
-        <div class="text-center"><div id="hs-contacts" class="text-2xl font-bold text-pink-400">0</div><div class="text-xs text-gray-600">Contacts</div></div>
-        <div class="text-center"><div id="hs-followups" class="text-2xl font-bold text-cyan-400">0</div><div class="text-xs text-gray-600">Follow-ups</div></div>
+      <!-- Stats -->
+      <div style="display:grid;grid-template-columns:repeat(3,80px);gap:10px;flex-shrink:0">
+        <div style="text-align:center;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 6px">
+          <div id="hs-apps"  style="font-size:20px;font-weight:700;color:var(--blue);font-family:'JetBrains Mono',monospace">0</div>
+          <div style="font-size:10px;color:var(--text-3);margin-top:2px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Applied</div>
+        </div>
+        <div style="text-align:center;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 6px">
+          <div id="hs-int"   style="font-size:20px;font-weight:700;color:var(--green);font-family:'JetBrains Mono',monospace">0</div>
+          <div style="font-size:10px;color:var(--text-3);margin-top:2px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Interviews</div>
+        </div>
+        <div style="text-align:center;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 6px">
+          <div id="hs-offers" style="font-size:20px;font-weight:700;color:var(--amber);font-family:'JetBrains Mono',monospace">0</div>
+          <div style="font-size:10px;color:var(--text-3);margin-top:2px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Offers</div>
+        </div>
+        <div style="text-align:center;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 6px">
+          <div id="hs-eval"  style="font-size:20px;font-weight:700;color:var(--purple);font-family:'JetBrains Mono',monospace">0</div>
+          <div style="font-size:10px;color:var(--text-3);margin-top:2px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Evaluated</div>
+        </div>
+        <div style="text-align:center;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 6px">
+          <div id="hs-contacts" style="font-size:20px;font-weight:700;color:#f472b6;font-family:'JetBrains Mono',monospace">0</div>
+          <div style="font-size:10px;color:var(--text-3);margin-top:2px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Contacts</div>
+        </div>
+        <div style="text-align:center;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 6px">
+          <div id="hs-followups" style="font-size:20px;font-weight:700;color:var(--cyan);font-family:'JetBrains Mono',monospace">0</div>
+          <div style="font-size:10px;color:var(--text-3);margin-top:2px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">Follow-ups</div>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
     <!-- Daily quests -->
-    <div class="card p-5 space-y-4">
-      <div class="flex items-center justify-between">
-        <h2 class="font-semibold text-white">⚔️ Daily Quests</h2>
-        <span id="h-quest-timer" class="text-xs text-gray-600"></span>
+    <div class="card-flat" style="padding:20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div style="font-size:14px;font-weight:600">⚔️ Daily Quests</div>
+        <span id="h-quest-timer" style="font-size:11px;color:var(--text-3);font-family:'JetBrains Mono',monospace"></span>
       </div>
-      <div id="h-quests" class="space-y-3"></div>
-      <div id="h-quests-empty" class="hidden text-xs text-gray-600">Quests refresh every day at midnight.</div>
-      <div id="h-quests-done" class="hidden text-xs text-green-400 font-semibold">✓ All quests complete! Come back tomorrow.</div>
+      <div id="h-quests" style="display:flex;flex-direction:column;gap:10px"></div>
+      <div id="h-quests-empty" class="hidden" style="font-size:12px;color:var(--text-3)">Quests refresh at midnight.</div>
+      <div id="h-quests-done" class="hidden" style="font-size:12px;color:var(--green);font-weight:600;margin-top:8px">✓ All quests complete! Come back tomorrow.</div>
     </div>
 
-    <!-- Recent XP log -->
-    <div class="card p-5 space-y-3">
-      <h2 class="font-semibold text-white">📈 XP Log</h2>
-      <div id="h-xp-log" class="space-y-1 max-h-56 overflow-auto"></div>
-      <div id="h-xp-log-empty" class="text-xs text-gray-600">No XP earned yet. Take an action!</div>
+    <!-- XP log -->
+    <div class="card-flat" style="padding:20px">
+      <div style="font-size:14px;font-weight:600;margin-bottom:16px">📈 XP Log</div>
+      <div id="h-xp-log" style="display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto"></div>
+      <div id="h-xp-log-empty" style="font-size:12px;color:var(--text-3)">No XP earned yet. Take an action!</div>
     </div>
-
   </div>
 
   <!-- Achievements -->
-  <div class="card p-5 space-y-4">
-    <h2 class="font-semibold text-white">🏅 Achievements <span id="h-ach-count" class="text-gray-600 text-sm font-normal ml-1"></span></h2>
-    <div id="h-achievements" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"></div>
+  <div class="card-flat" style="padding:20px">
+    <div style="font-size:14px;font-weight:600;margin-bottom:16px">🏅 Achievements <span id="h-ach-count" style="color:var(--text-3);font-size:13px;font-weight:400;margin-left:6px"></span></div>
+    <div id="h-achievements" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px"></div>
   </div>
 
 </div>
 
-<!-- Add Contact Modal -->
+<!-- ═══ CONTACT MODAL ══════════════════════════════════════════════════ -->
 <div id="contact-modal" class="modal" onclick="if(event.target===this)closeContactModal()">
-  <div class="modal-box space-y-4">
-    <h3 class="font-semibold text-white">Add Contact</h3>
-    <div class="grid grid-cols-2 gap-3">
-      <div><label class="text-xs text-gray-500">Name *</label><input id="cm-name"    class="w-full mt-1" placeholder="Jane Doe"/></div>
-      <div><label class="text-xs text-gray-500">Company *</label><input id="cm-company" class="w-full mt-1" placeholder="Ripple"/></div>
-      <div><label class="text-xs text-gray-500">Title</label><input id="cm-title"    class="w-full mt-1" placeholder="Head of Partnerships"/></div>
-      <div><label class="text-xs text-gray-500">Email</label><input id="cm-email"    class="w-full mt-1" placeholder="jane@ripple.com"/></div>
-      <div class="col-span-2"><label class="text-xs text-gray-500">LinkedIn URL</label><input id="cm-linkedin" class="w-full mt-1" placeholder="https://linkedin.com/in/..."/></div>
-      <div class="col-span-2"><label class="text-xs text-gray-500">Notes</label><textarea id="cm-notes" class="w-full mt-1 h-16 resize-none" placeholder="How you found them, context..."></textarea></div>
+  <div class="modal-box">
+    <div style="font-size:16px;font-weight:600;margin-bottom:20px">Add Contact</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div><label style="font-size:12px;color:var(--text-3);display:block;margin-bottom:4px">Name *</label><input id="cm-name"    style="width:100%" placeholder="Jane Doe"/></div>
+      <div><label style="font-size:12px;color:var(--text-3);display:block;margin-bottom:4px">Company *</label><input id="cm-company" style="width:100%" placeholder="Ripple"/></div>
+      <div><label style="font-size:12px;color:var(--text-3);display:block;margin-bottom:4px">Title</label><input id="cm-title"    style="width:100%" placeholder="Head of Partnerships"/></div>
+      <div><label style="font-size:12px;color:var(--text-3);display:block;margin-bottom:4px">Email</label><input id="cm-email"    style="width:100%" placeholder="jane@ripple.com"/></div>
+      <div style="grid-column:span 2"><label style="font-size:12px;color:var(--text-3);display:block;margin-bottom:4px">LinkedIn URL</label><input id="cm-linkedin" style="width:100%" placeholder="https://linkedin.com/in/..."/></div>
+      <div style="grid-column:span 2"><label style="font-size:12px;color:var(--text-3);display:block;margin-bottom:4px">Notes</label><textarea id="cm-notes" style="width:100%;height:72px;resize:none" placeholder="How you found them, context…"></textarea></div>
     </div>
-    <div class="flex justify-end gap-2">
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:20px">
       <button onclick="closeContactModal()" class="btn btn-ghost">Cancel</button>
       <button onclick="saveContact()" class="btn btn-primary">Save Contact</button>
     </div>
@@ -402,11 +639,14 @@ function renderDashApps(apps){
 function appRow(a){
   const sc=a.score>=4.5?'score-high':a.score>=3.5?'score-mid':'score-low';
   const pill='pill-'+(a.status||'Evaluated');
-  return `<tr><td class="text-gray-600">${a.num}</td><td class="font-medium">${esc(a.company)}</td>
-    <td class="text-gray-400 max-w-[200px] truncate" title="${esc(a.role)}">${esc(a.role)}</td>
-    <td class="font-mono ${sc}">${a.score?a.score.toFixed(1):'—'}</td>
-    <td><span class="status-pill ${pill}">${a.status}</span></td>
-    <td class="text-gray-600">${a.date}</td></tr>`;
+  return `<tr>
+    <td style="color:var(--text-3);padding-left:20px">${a.num}</td>
+    <td style="font-weight:600">${esc(a.company)}</td>
+    <td style="color:var(--text-2);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(a.role)}">${esc(a.role)}</td>
+    <td><span class="${sc}">${a.score?a.score.toFixed(1):'—'}</span></td>
+    <td><span class="pill ${pill}">${a.status}</span></td>
+    <td style="color:var(--text-3)">${a.date}</td>
+  </tr>`;
 }
 
 async function loadSkills(){
@@ -417,9 +657,17 @@ async function loadSkills(){
   if(!data.length){el.innerHTML='';em.style.display='';return;}
   em.style.display='none';
   el.innerHTML=data.map(s=>{
-    const p=Math.round(s.match_rate*100),c=p>=75?'#3fb950':p>=40?'#d29922':'#f85149';
-    return `<div><div class="flex justify-between text-gray-400 text-xs"><span>${esc(s.skill)}</span><span style="color:${c}">${p}%</span></div>
-      <div class="w-full h-1 bg-gray-800 rounded mt-1"><div class="h-1 rounded" style="width:${p}%;background:${c}"></div></div></div>`;
+    const p=Math.round(s.match_rate*100);
+    const c=p>=75?'var(--green)':p>=40?'var(--amber)':'var(--red)';
+    return `<div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+        <span style="color:var(--text-2)">${esc(s.skill)}</span>
+        <span style="color:${c};font-family:'JetBrains Mono',monospace;font-size:11px">${p}%</span>
+      </div>
+      <div style="height:3px;background:var(--surface-3);border-radius:2px">
+        <div style="height:3px;border-radius:2px;width:${p}%;background:${c};transition:width .6s ease"></div>
+      </div>
+    </div>`;
   }).join('');
 }
 
@@ -428,8 +676,21 @@ function renderStatusChart(d){
   if(!d.length) return;
   statusChart=new Chart(document.getElementById('c-status'),{
     type:'doughnut',
-    data:{labels:d.map(s=>s.status),datasets:[{data:d.map(s=>s.count),backgroundColor:['#58a6ff','#3fb950','#d29922','#56d364','#f85149','#484f58','#8b949e'],borderWidth:0}]},
-    options:{plugins:{legend:{position:'bottom',labels:{color:'#8b949e',font:{size:10},boxWidth:10}}},cutout:'65%'},
+    data:{
+      labels:d.map(s=>s.status),
+      datasets:[{
+        data:d.map(s=>s.count),
+        backgroundColor:['#6366f1','#10b981','#f59e0b','#34d399','#ef4444','#3f3f46','#8b8ba8'],
+        borderWidth:0,
+        borderRadius:4,
+      }]
+    },
+    options:{
+      plugins:{
+        legend:{position:'bottom',labels:{color:'var(--text-3)',font:{size:11,family:'Inter'},boxWidth:8,padding:10,usePointStyle:true}}
+      },
+      cutout:'68%',
+    },
   });
 }
 
@@ -444,16 +705,14 @@ async function runScan() {
   const status = document.getElementById('scan-status');
 
   btn.disabled = true;
-  btn.style.opacity = '0.7';
   icon.textContent  = '⏳';
   label.textContent = 'Scanning…';
-  status.textContent = 'Hitting 50+ job boards…';
+  status.textContent = 'Searching job boards…';
 
   await fetch('/api/scan', { method: 'POST' }).catch(() => null);
 
-  // Poll for completion
   let dots = 0;
-  const sources = ['Greenhouse', 'Ashby', 'Lever', 'RemoteOK', 'Chainlink', 'Ripple', 'Anthropic', 'Coinbase', 'Fireblocks'];
+  const sources = ['Greenhouse','Ashby','Lever','RemoteOK','Ripple','Anthropic','Coinbase','Fireblocks'];
   let srcIdx = 0;
 
   scanPollInterval = setInterval(async () => {
@@ -468,38 +727,28 @@ async function runScan() {
     if (!d.running && d.last) {
       clearInterval(scanPollInterval);
       scanPollInterval = null;
-
-      // Done
       btn.disabled = false;
-      btn.style.opacity = '1';
       icon.textContent  = '✓';
       label.textContent = 'Scan Complete';
-      status.textContent = d.last.newJobs > 0
-        ? `✓ ${d.last.newJobs} new jobs found`
-        : '✓ No new jobs this time';
+      status.textContent = d.last.newJobs > 0 ? `✓ ${d.last.newJobs} new jobs found` : '✓ No new jobs this time';
 
-      // Reload inbox to show new results
       allInbox = [];
       await loadInbox();
 
-      // Show toast
       if (d.last.newJobs > 0) {
-        showToast({ icon: '🔍', title: `${d.last.newJobs} new jobs found!`, subtitle: 'Check your Inbox for the latest listings' });
+        showToast({ icon: '🔍', title: `${d.last.newJobs} new jobs found!`, subtitle: 'Check your Inbox' });
       }
 
-      // Reset button after 4 seconds
       setTimeout(() => {
         icon.textContent  = '⚡';
         label.textContent = 'Scan for Jobs';
-        status.textContent = d.last
-          ? `Last scan: ${new Date(d.last.timestamp).toLocaleTimeString()}`
-          : '';
+        status.textContent = d.last ? `Last scan: ${new Date(d.last.timestamp).toLocaleTimeString()}` : '';
       }, 4000);
     }
   }, 1500);
 }
 
-// ── LinkedIn scan trigger ──────────────────────────────────────────────
+// ── LinkedIn scan ─────────────────────────────────────────────────────
 
 async function runLinkedIn() {
   const btn   = document.getElementById('li-btn');
@@ -507,50 +756,37 @@ async function runLinkedIn() {
   const label = document.getElementById('li-label');
   const status = document.getElementById('scan-status');
 
-  // Check if session exists
   const s = await fetch('/api/linkedin/status').then(r=>r.json()).catch(()=>null);
   if (!s?.hasSession) {
-    showToast({
-      icon: '🔗',
-      title: 'LinkedIn setup required',
-      subtitle: 'Run: npm run linkedin:auth  in your terminal first',
-    });
+    showToast({ icon: '🔗', title: 'LinkedIn setup required', subtitle: 'Run: npm run linkedin:auth  in your terminal first' });
     return;
   }
 
   btn.disabled = true;
-  btn.style.opacity = '0.7';
   icon.textContent  = '⏳';
-  label.textContent = 'Scanning LinkedIn…';
-  status.textContent = 'Searching LinkedIn Jobs…';
+  label.textContent = 'Scanning…';
 
   const r = await fetch('/api/linkedin', { method: 'POST' }).catch(() => null);
   if (!r?.ok) {
     const err = await r?.json().catch(() => ({}));
-    icon.textContent = '🔗'; label.textContent = 'LinkedIn'; btn.disabled = false; btn.style.opacity = '1';
+    icon.textContent = '🔗'; label.textContent = 'LinkedIn'; btn.disabled = false;
     showToast({ icon: '⚠️', title: 'LinkedIn error', subtitle: err?.message || 'Check terminal' });
     return;
   }
 
-  // Poll
   const poll = setInterval(async () => {
     const d = await fetch('/api/linkedin/status').then(r=>r.json()).catch(()=>null);
     if (!d?.running && d?.last) {
       clearInterval(poll);
-      btn.disabled = false; btn.style.opacity = '1';
-
+      btn.disabled = false;
       if (d.last.error) {
-        icon.textContent = '⚠️'; label.textContent = 'Session expired';
+        icon.textContent = '⚠️'; label.textContent = 'Expired';
         showToast({ icon: '⚠️', title: 'LinkedIn session expired', subtitle: 'Run: npm run linkedin:auth' });
       } else {
-        icon.textContent = '✓'; label.textContent = 'LinkedIn done';
-        status.textContent = d.last.newJobs > 0 ? `✓ ${d.last.newJobs} new LinkedIn jobs` : '✓ No new LinkedIn jobs';
-        if (d.last.newJobs > 0) {
-          showToast({ icon: '🔗', title: `${d.last.newJobs} LinkedIn jobs found!`, subtitle: 'Check your Inbox' });
-          allInbox = []; await loadInbox();
-        }
+        icon.textContent = '✓'; label.textContent = 'Done';
+        if (d.last.newJobs > 0) { allInbox = []; await loadInbox(); showToast({ icon: '🔗', title: `${d.last.newJobs} LinkedIn jobs found!`, subtitle: 'Check your Inbox' }); }
       }
-      setTimeout(() => { icon.textContent='🔗'; label.textContent='LinkedIn'; status.textContent=''; }, 4000);
+      setTimeout(() => { icon.textContent='🔗'; label.textContent='LinkedIn'; }, 4000);
     }
   }, 2500);
 }
@@ -562,7 +798,9 @@ async function loadInbox(){
   if(!r?.ok) return;
   allInbox=await r.json();
   const pending=allInbox.filter(j=>!j.checked).length;
-  document.getElementById('b-inbox').textContent=pending?`(${pending})`:'';
+  const bInbox = document.getElementById('b-inbox');
+  bInbox.textContent=pending?`${pending}`:'';
+  bInbox.style.display=pending?'':'none';
   document.getElementById('s-inbox').textContent=pending;
   const cos=[...new Set(allInbox.map(j=>j.company))].sort();
   const sel=document.getElementById('i-company');
@@ -590,24 +828,37 @@ function filterInbox(){
 function inboxCard(j){
   const fc=fitClass(j.fit_label),stars=fitStars(j.fit_score??0);
   const pc='portal-pill portal-'+(j.portal??'');
-  const op=j.checked?'opacity-40':'';
-  const reasons=(j.fit_reasons??[]).slice(0,2).map(r=>`<li>${esc(r)}</li>`).join('');
-  return `<div class="card p-4 flex flex-col gap-2 ${op}">
-    <div class="flex items-start justify-between gap-2">
-      <div class="min-w-0"><div class="font-semibold text-white truncate">${esc(j.company)}</div>
-        <div class="text-xs text-gray-400 mt-0.5">${esc(j.role)}</div></div>
-      <span class="${pc}">${j.portal??''}</span>
+  const op=j.checked?'checked':'';
+  const reasons=(j.fit_reasons??[]).slice(0,2).map(r=>`
+    <div style="display:flex;gap:6px;align-items:flex-start">
+      <span style="color:var(--text-3);flex-shrink:0;margin-top:1px">·</span>
+      <span style="font-size:12px;color:var(--text-3)">${esc(r)}</span>
+    </div>`).join('');
+  const shortUrl = esc(j.url||'').replace(/^https?:\/\//,'').slice(0,45)+(j.url?.length>45?'…':'');
+  return `<div class="job-card ${op}">
+    <div style="padding:14px 16px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px">
+        <span style="font-size:14px;font-weight:600">${esc(j.company)}</span>
+        <span class="${pc}">${j.portal??''}</span>
+      </div>
+      <div style="font-size:13px;color:var(--text-2);margin-bottom:8px;line-height:1.3">${esc(j.role)}</div>
+      ${j.location?`<div style="font-size:11px;color:var(--text-3);margin-bottom:8px">📍 ${esc(j.location)}</div>`:''}
     </div>
-    <div class="flex items-center gap-2">
-      <span class="text-sm">${stars}</span>
-      <span class="${fc}">${j.fit_label??'—'}</span>
-      <span class="text-gray-600 font-mono text-xs">${(j.fit_score??0).toFixed(1)}/5</span>
+    <hr class="divider">
+    <div style="padding:10px 16px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span style="font-size:13px">${stars}</span>
+        <span class="${fc}">${j.fit_label??'—'}</span>
+        <span style="font-size:11px;color:var(--text-3);font-family:'JetBrains Mono',monospace;margin-left:auto">${(j.fit_score??0).toFixed(1)}/5</span>
+      </div>
+      ${reasons?`<div style="display:flex;flex-direction:column;gap:3px">${reasons}</div>`:''}
     </div>
-    ${reasons?`<ul class="text-xs text-gray-500 list-disc list-inside space-y-0.5">${reasons}</ul>`:''}
-    ${j.location?`<div class="text-xs text-gray-600">${esc(j.location)}</div>`:''}
-    <div class="flex gap-2 mt-auto pt-2 border-t border-gray-800">
-      <a href="${esc(j.url)}" target="_blank" class="text-xs text-blue-400 hover:underline flex-1 truncate">${esc(j.url)}</a>
-      <button onclick="navigator.clipboard.writeText('${esc(j.url)}')" class="text-xs text-gray-600 hover:text-gray-300">copy</button>
+    <hr class="divider">
+    <div style="padding:10px 16px;display:flex;align-items:center;gap:8px">
+      <a href="${esc(j.url)}" target="_blank" class="btn btn-primary" style="font-size:11px;padding:5px 12px;flex-shrink:0">View Job →</a>
+      <button onclick="navigator.clipboard.writeText('${esc(j.url)}');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)"
+        class="btn btn-ghost" style="font-size:11px;padding:5px 12px;flex-shrink:0">Copy</button>
+      <span style="font-size:11px;color:var(--text-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1" title="${esc(j.url)}">${shortUrl}</span>
     </div>
   </div>`;
 }
@@ -618,33 +869,36 @@ async function loadRecs(){
   const r=await fetch('/api/recommendations').catch(()=>null);
   if(!r?.ok) return;
   const data=await r.json();
-  document.getElementById('b-recs').textContent=data.length?`(${data.length})`:'';
+  const bRecs = document.getElementById('b-recs');
+  bRecs.textContent=data.length?`${data.length}`:'';
+  bRecs.style.display=data.length?'':'none';
   const el=document.getElementById('r-list'),em=document.getElementById('r-empty');
   if(!data.length){el.innerHTML='';em.classList.remove('hidden');return;}
   em.classList.add('hidden');
   el.innerHTML=data.map((j,i)=>`
-    <div class="card p-5 flex flex-col gap-3" style="border-left:3px solid ${j.fit_score>=4?'#3fb950':'#d29922'}">
-      <div class="flex items-start gap-3">
-        <div class="text-2xl font-bold text-gray-700 w-7 shrink-0">${i+1}</div>
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center gap-2 flex-wrap">
-            <span class="font-bold text-white">${esc(j.company)}</span>
+    <div class="card-flat" style="padding:20px;border-left:3px solid ${j.fit_score>=4?'var(--green)':'var(--amber)'}">
+      <div style="display:flex;align-items:flex-start;gap:14px">
+        <div style="font-size:24px;font-weight:800;color:var(--border-2);font-family:'JetBrains Mono',monospace;line-height:1;width:28px;flex-shrink:0">${i+1}</div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
+            <span style="font-size:15px;font-weight:700">${esc(j.company)}</span>
             <span class="portal-pill portal-${j.portal??''}">${j.portal??''}</span>
           </div>
-          <div class="text-gray-300 mt-0.5">${esc(j.role)}</div>
-          ${j.location?`<div class="text-xs text-gray-600 mt-0.5">${esc(j.location)}</div>`:''}
+          <div style="font-size:13px;color:var(--text-2);margin-bottom:4px">${esc(j.role)}</div>
+          ${j.location?`<div style="font-size:12px;color:var(--text-3)">📍 ${esc(j.location)}</div>`:''}
         </div>
-        <div class="text-right shrink-0">
-          <div class="text-lg">${fitStars(j.fit_score)}</div>
-          <div class="text-xs text-gray-500">${j.fit_score.toFixed(1)}/5</div>
-          <span class="${fitClass(j.fit_label)} mt-1">${j.fit_label}</span>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:16px;margin-bottom:2px">${fitStars(j.fit_score)}</div>
+          <div style="font-size:12px;color:var(--text-3);font-family:'JetBrains Mono',monospace">${j.fit_score.toFixed(1)}/5</div>
+          <div class="${fitClass(j.fit_label)}" style="margin-top:4px">${j.fit_label}</div>
         </div>
       </div>
-      ${j.fit_reasons?.length?`<ul class="text-xs text-gray-500 list-disc list-inside space-y-0.5">${j.fit_reasons.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`:''}
-      <div class="flex gap-2 pt-2 border-t border-gray-800">
-        <a href="${esc(j.url)}" target="_blank" class="btn btn-primary text-xs">View Job →</a>
-        <button onclick="navigator.clipboard.writeText('${esc(j.url)}');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy URL',1500)" class="btn btn-ghost text-xs">Copy URL</button>
-        <span class="text-xs text-gray-700 self-center ml-auto">Paste in Claude Code to evaluate</span>
+      ${j.fit_reasons?.length?`<div style="margin-top:12px;display:flex;flex-direction:column;gap:3px">${j.fit_reasons.map(r=>`<div style="font-size:12px;color:var(--text-3)">· ${esc(r)}</div>`).join('')}</div>`:''}
+      <div style="display:flex;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+        <a href="${esc(j.url)}" target="_blank" class="btn btn-primary" style="font-size:12px">View Job →</a>
+        <button onclick="navigator.clipboard.writeText('${esc(j.url)}');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy URL',1500)"
+          class="btn btn-ghost" style="font-size:12px">Copy URL</button>
+        <span style="font-size:12px;color:var(--text-3);align-self:center;margin-left:auto">Paste in Claude Code to evaluate</span>
       </div>
     </div>`).join('');
 }
@@ -667,13 +921,13 @@ function renderTracker(apps){
     const sc=a.score>=4.5?'score-high':a.score>=3.5?'score-mid':'score-low';
     const pill='pill-'+(a.status||'Evaluated');
     return `<tr>
-      <td class="text-gray-600">${a.num}</td>
-      <td class="font-medium">${esc(a.company)}</td>
-      <td class="text-gray-400 max-w-[220px] truncate" title="${esc(a.role)}">${esc(a.role)}</td>
-      <td class="font-mono ${sc}">${a.score?a.score.toFixed(1):'—'}</td>
-      <td><span class="status-pill ${pill}">${a.status}</span></td>
-      <td class="text-gray-600">${a.date}</td>
-      <td class="text-gray-600 max-w-[160px] truncate" title="${esc(a.notes??'')}">${esc(a.notes??'')}</td>
+      <td style="color:var(--text-3)">${a.num}</td>
+      <td style="font-weight:600">${esc(a.company)}</td>
+      <td style="color:var(--text-2);max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(a.role)}">${esc(a.role)}</td>
+      <td><span class="${sc}">${a.score?a.score.toFixed(1):'—'}</span></td>
+      <td><span class="pill ${pill}">${a.status}</span></td>
+      <td style="color:var(--text-3)">${a.date}</td>
+      <td style="color:var(--text-3);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px" title="${esc(a.notes??'')}">${esc(a.notes??'')}</td>
     </tr>`;
   }).join('');
 }
@@ -685,7 +939,12 @@ async function loadFollowups(){
   if(!r?.ok) return;
   allFollowups=await r.json();
   const overdue=allFollowups.filter(f=>f.due_date<today()).length;
-  document.getElementById('b-fu').textContent=overdue?`(${overdue}!)`:(allFollowups.length?`(${allFollowups.length})`:'');
+  const bFu = document.getElementById('b-fu');
+  const count = overdue || allFollowups.length;
+  bFu.textContent=count?`${count}`:'';
+  bFu.style.display=count?'':'none';
+  if(overdue) bFu.style.background='var(--red-dim)'; else bFu.style.background='';
+  if(overdue) bFu.style.color='var(--red)'; else bFu.style.color='';
   renderFollowups();
 }
 
@@ -695,28 +954,36 @@ function renderFollowups(){
   em.classList.add('hidden');
   const sorted=[...allFollowups].sort((a,b)=>a.due_date.localeCompare(b.due_date));
   el.innerHTML=sorted.map(f=>{
-    const od=f.due_date<today(),td=f.due_date===today();
-    const badge=od?'text-red-400':td?'text-yellow-400':'text-gray-500';
-    const label=od?'OVERDUE':td?'TODAY':f.due_date;
-    return `<div class="card p-4 flex items-center gap-4 ${od?'overdue':''}">
-      <div class="flex-1 min-w-0">
-        <div class="flex items-center gap-2 flex-wrap">
-          <span class="font-semibold text-white">${esc(f.company)}</span>
-          <span class="status-pill pill-${esc(f.app_status)}">${esc(f.app_status)}</span>
+    const od=f.due_date<today(), td_=f.due_date===today();
+    const cls=od?'overdue':td_?'due-today':'upcoming';
+    const badge=od?`<span style="color:var(--red);font-size:11px;font-weight:700">OVERDUE</span>`
+              :td_?`<span style="color:var(--amber);font-size:11px;font-weight:700">TODAY</span>`
+              :`<span style="color:var(--text-3);font-size:11px">${f.due_date}</span>`;
+    return `<div class="card-flat fu-card ${cls}" style="padding:14px 16px;display:flex;align-items:center;gap:14px">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <span style="font-size:14px;font-weight:600">${esc(f.company)}</span>
+          <span class="pill pill-${esc(f.app_status)}">${esc(f.app_status)}</span>
         </div>
-        <div class="text-xs text-gray-400 mt-0.5">${esc(f.role)}</div>
-        <div class="text-xs text-gray-600 mt-1">${esc(f.type)} · <span class="${badge} font-semibold">${label}</span></div>
-        ${f.notes?`<div class="text-xs text-gray-600 mt-0.5">${esc(f.notes)}</div>`:''}
+        <div style="font-size:12px;color:var(--text-2);margin-bottom:4px">${esc(f.role)}</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:11px;color:var(--text-3)">${esc(f.type)}</span>
+          <span style="color:var(--text-3)">·</span>
+          ${badge}
+        </div>
+        ${f.notes?`<div style="font-size:11px;color:var(--text-3);margin-top:4px">${esc(f.notes)}</div>`:''}
       </div>
-      <button onclick="markFollowupDone(${f.id},this)" class="btn btn-ghost text-xs shrink-0">✓ Done</button>
+      <button onclick="markFollowupDone(${f.id},this)" class="btn btn-ghost" style="font-size:12px;flex-shrink:0">✓ Done</button>
     </div>`;
   }).join('');
 }
 
 async function markFollowupDone(id,btn){
   await fetch('/api/followups/'+id+'/complete',{method:'POST'});
-  btn.closest('.card').style.opacity='0.3';
-  setTimeout(()=>{allFollowups=allFollowups.filter(f=>f.id!==id);renderFollowups();},400);
+  const card=btn.closest('.card-flat');
+  card.style.transition='opacity .3s,transform .3s';
+  card.style.opacity='0'; card.style.transform='translateX(20px)';
+  setTimeout(()=>{allFollowups=allFollowups.filter(f=>f.id!==id);renderFollowups();},300);
 }
 
 // ── Contacts ──────────────────────────────────────────────────────────
@@ -725,7 +992,9 @@ async function loadContacts(){
   const r=await fetch('/api/contacts').catch(()=>null);
   if(!r?.ok) return;
   allContacts=await r.json();
-  document.getElementById('b-contacts').textContent=allContacts.length?`(${allContacts.length})`:'';
+  const bC = document.getElementById('b-contacts');
+  bC.textContent=allContacts.length?`${allContacts.length}`:'';
+  bC.style.display=allContacts.length?'':'none';
   renderContacts();
 }
 
@@ -734,13 +1003,13 @@ function renderContacts(){
   if(!allContacts.length){tb.innerHTML='';em.classList.remove('hidden');return;}
   em.classList.add('hidden');
   tb.innerHTML=allContacts.map(c=>`<tr>
-    <td class="font-medium">${esc(c.name)}</td>
+    <td style="font-weight:600">${esc(c.name)}</td>
     <td>${esc(c.company)}</td>
-    <td class="text-gray-400">${esc(c.title??'')}</td>
-    <td class="text-gray-600">${esc(c.connection??'none')}</td>
-    <td>${c.outreach_sent?`<span class="text-green-400 text-xs">✓ Sent ${c.outreach_date??''}</span>`:'<span class="text-gray-600 text-xs">Not sent</span>'}</td>
-    <td>${c.linkedin_url?`<a href="${esc(c.linkedin_url)}" target="_blank" class="text-blue-400 hover:underline text-xs">LinkedIn</a>`:''}</td>
-    <td class="text-gray-600 max-w-[150px] truncate text-xs" title="${esc(c.notes??'')}">${esc(c.notes??'')}</td>
+    <td style="color:var(--text-2)">${esc(c.title??'')}</td>
+    <td style="color:var(--text-3)">${esc(c.connection??'none')}</td>
+    <td>${c.outreach_sent?`<span style="color:var(--green);font-size:12px">✓ Sent ${c.outreach_date??''}</span>`:'<span style="color:var(--text-3);font-size:12px">Not sent</span>'}</td>
+    <td>${c.linkedin_url?`<a href="${esc(c.linkedin_url)}" target="_blank" style="color:var(--indigo);font-size:12px;text-decoration:none">LinkedIn ↗</a>`:''}</td>
+    <td style="color:var(--text-3);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px" title="${esc(c.notes??'')}">${esc(c.notes??'')}</td>
   </tr>`).join('');
 }
 
@@ -767,23 +1036,25 @@ async function loadGmail(){
   const r=await fetch('/api/gmail').catch(()=>null);
   if(!r?.ok) return;
   const data=await r.json();
-  document.getElementById('b-gmail').textContent=data.length?`(${data.length})`:'';
+  const bG = document.getElementById('b-gmail');
+  bG.textContent=data.length?`${data.length}`:'';
+  bG.style.display=data.length?'':'none';
   const el=document.getElementById('g-list'),em=document.getElementById('g-empty');
   if(!data.length){el.innerHTML='';em.classList.remove('hidden');return;}
   em.classList.add('hidden');
   const icons={interview:'📅',offer:'🎉',rejection:'❌',recruiter:'📩',other:'📧'};
-  el.innerHTML=data.map(t=>`<div class="card p-4 flex items-start gap-3">
-    <span class="text-xl shrink-0">${icons[t.label]??'📧'}</span>
-    <div class="flex-1 min-w-0">
-      <div class="flex items-center gap-2 flex-wrap">
-        <span class="font-medium text-white">${esc(t.from_name||t.from_email)}</span>
-        <span class="gmail-${t.label} text-xs font-semibold uppercase">${t.label}</span>
-        ${t.company?`<span class="text-gray-600 text-xs">→ ${esc(t.company)}</span>`:''}
+  el.innerHTML=data.map(t=>`<div class="card-flat" style="padding:14px 18px;display:flex;align-items:flex-start;gap:12px">
+    <span style="font-size:20px;flex-shrink:0">${icons[t.label]??'📧'}</span>
+    <div style="flex:1;min-width:0">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px">
+        <span style="font-weight:600;font-size:13px">${esc(t.from_name||t.from_email)}</span>
+        <span class="gmail-${t.label}" style="font-size:11px;font-weight:600;text-transform:uppercase">${t.label}</span>
+        ${t.company?`<span style="color:var(--text-3);font-size:12px">→ ${esc(t.company)}</span>`:''}
       </div>
-      <div class="text-xs text-gray-400 mt-0.5">${esc(t.subject)}</div>
-      <div class="text-xs text-gray-600 mt-0.5 truncate">${esc(t.snippet)}</div>
+      <div style="font-size:13px;color:var(--text-2);margin-bottom:2px">${esc(t.subject)}</div>
+      <div style="font-size:12px;color:var(--text-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.snippet)}</div>
     </div>
-    <div class="text-xs text-gray-700 shrink-0">${t.date?new Date(t.date).toLocaleDateString():''}</div>
+    <div style="font-size:11px;color:var(--text-3);flex-shrink:0">${t.date?new Date(t.date).toLocaleDateString():''}</div>
   </div>`).join('');
 }
 
@@ -797,17 +1068,21 @@ async function loadProfile(){
     const c=profile.candidate;
     document.getElementById('p-fields').innerHTML=[
       ['Name',c.name],['Email',c.email],['Location',c.location],['Timezone',c.timezone],
-      ['LinkedIn',c.linkedin?`<a href="${esc(c.linkedin)}" target="_blank" class="text-blue-400">${esc(c.linkedin)}</a>`:null],
-      ['Portfolio',c.portfolio?`<a href="${esc(c.portfolio)}" target="_blank" class="text-blue-400">${esc(c.portfolio)}</a>`:null],
-    ].filter(([,v])=>v).map(([k,v])=>`<div class="flex gap-2"><span class="text-gray-600 w-20 shrink-0">${k}</span><span class="text-gray-300">${v}</span></div>`).join('');
+      ['LinkedIn',c.linkedin?`<a href="${esc(c.linkedin)}" target="_blank" style="color:var(--indigo)">${esc(c.linkedin)}</a>`:null],
+      ['Portfolio',c.portfolio?`<a href="${esc(c.portfolio)}" target="_blank" style="color:var(--indigo)">${esc(c.portfolio)}</a>`:null],
+    ].filter(([,v])=>v).map(([k,v])=>`
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <span style="color:var(--text-3);font-size:12px;width:72px;flex-shrink:0;padding-top:1px">${k}</span>
+        <span style="font-size:13px;color:var(--text-2)">${v}</span>
+      </div>`).join('');
   }
   if(profile?.target){
     const t=profile.target;
     document.getElementById('p-targets').innerHTML=[
-      ...(t.roles??[]).map(r=>`<div class="text-gray-300">→ ${esc(r)}</div>`),
-      `<div class="mt-2 text-gray-600">Remote: ${esc(t.remote??'')}</div>`,
-      `<div class="text-gray-600">Seniority: ${esc(t.seniority??'')}</div>`,
-      profile.compensation?`<div class="mt-2 text-gray-500">Salary target: $${(profile.compensation.base_target/1000).toFixed(0)}k</div>`:'',
+      ...(t.roles??[]).map(r=>`<div style="font-size:13px;color:var(--text-2);display:flex;align-items:center;gap:6px"><span style="color:var(--indigo)">→</span>${esc(r)}</div>`),
+      `<div style="margin-top:8px;font-size:12px;color:var(--text-3)">Remote: ${esc(t.remote??'')}</div>`,
+      `<div style="font-size:12px;color:var(--text-3)">Seniority: ${esc(t.seniority??'')}</div>`,
+      profile.compensation?`<div style="margin-top:6px;font-size:12px;color:var(--text-3)">Salary target: <span style="color:var(--amber)">\$${(profile.compensation.base_target/1000).toFixed(0)}k</span></div>`:'',
     ].join('');
   }
   if(cv) document.getElementById('p-cv').textContent=cv.slice(0,2000)+(cv.length>2000?'\n…(truncated)':'');
@@ -815,7 +1090,11 @@ async function loadProfile(){
 
 // ── Helpers ────────────────────────────────────────────────────────────
 
-function fitStars(s){const f=Math.floor(s),h=s-f>=0.5?1:0,e=5-f-h,c=s>=4?'#3fb950':s>=3?'#d29922':'#8b949e';return `<span style="color:${c}">${'★'.repeat(f)}${'⯨'.repeat(h)}${'☆'.repeat(e)}</span>`;}
+function fitStars(s){
+  const f=Math.floor(s),h=s-f>=0.5?1:0,e=5-f-h;
+  const c=s>=4?'var(--green)':s>=3?'var(--amber)':'var(--text-3)';
+  return `<span style="color:${c};font-size:14px">${'★'.repeat(f)}${'⯨'.repeat(h)}${'☆'.repeat(e)}</span>`;
+}
 function fitClass(l){return {'Strong Match':'fit-strong','Good Match':'fit-good','Partial Match':'fit-partial','Weak Match':'fit-weak'}[l]??'fit-weak';}
 function today(){return new Date().toISOString().split('T')[0];}
 function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
@@ -835,8 +1114,8 @@ async function loadHunter(silent=false) {
 
 function renderHunterCard(d) {
   const {stats, rankInfo, level} = d;
-  const rankColors = {E:'#8b949e',D:'#3fb950',C:'#58a6ff',B:'#bc8cff',A:'#ffa657',S:'#d29922'};
-  const color = rankColors[stats.rank] || '#8b949e';
+  const rankColors = {E:'#71717a',D:'var(--green)',C:'var(--blue)',B:'var(--purple)',A:'var(--orange)',S:'var(--amber)'};
+  const color = rankColors[stats.rank] || '#71717a';
 
   document.getElementById('h-rank-badge').textContent = stats.rank+'-RANK';
   document.getElementById('h-rank-badge').className = `rank-badge badge-${stats.rank}`;
@@ -849,7 +1128,7 @@ function renderHunterCard(d) {
   document.getElementById('h-xp-text').textContent = `${rankInfo.xpIntoRank.toLocaleString()} / ${(rankInfo.xpIntoRank + rankInfo.xpToNext).toLocaleString()}`;
   document.getElementById('h-xp-bar').style.width = rankInfo.pct+'%';
   document.getElementById('h-xp-bar').style.background = color;
-  document.getElementById('h-xp-next').textContent = rankInfo.nextRank ? `Next rank: ${rankInfo.nextRank}-Rank` : 'Maximum rank reached';
+  document.getElementById('h-xp-next').textContent = rankInfo.nextRank ? `Next: ${rankInfo.nextRank}-Rank` : 'Maximum rank reached';
 
   document.getElementById('hs-apps').textContent      = stats.applications_sent;
   document.getElementById('hs-int').textContent       = stats.interviews;
@@ -857,6 +1136,10 @@ function renderHunterCard(d) {
   document.getElementById('hs-eval').textContent      = stats.jobs_evaluated;
   document.getElementById('hs-contacts').textContent  = stats.contacts_added;
   document.getElementById('hs-followups').textContent = stats.followups_sent;
+
+  // Update hunter card glow color
+  const card = document.querySelector('.hunter-card');
+  if(card) card.style.setProperty('--glow-color', color);
 }
 
 function renderQuests(quests) {
@@ -873,19 +1156,18 @@ function renderQuests(quests) {
   el.innerHTML = quests.map(q => {
     const isDone  = q.completed === 1;
     const pct     = Math.min(100, Math.round((q.progress/q.target)*100));
-    return `<div class="flex items-start gap-3 ${isDone?'quest-done':''}">
-      <div class="mt-0.5 shrink-0 w-5 h-5 rounded border flex items-center justify-center text-xs
-        ${isDone ? 'border-green-700 bg-green-900/40 text-green-400' : 'border-gray-700 text-gray-600'}">
-        ${isDone ? '✓' : '○'}
+    return `<div style="display:flex;align-items:flex-start;gap:10px${isDone?';opacity:.45':''}">
+      <div class="quest-check ${isDone?'done':''}">
+        ${isDone ? '✓' : ''}
       </div>
-      <div class="flex-1 min-w-0">
-        <div class="text-xs ${isDone?'text-gray-600':'text-gray-300'}">${esc(q.label)}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;color:${isDone?'var(--text-3)':'var(--text-2)'};text-decoration:${isDone?'line-through':'none'}">${esc(q.label)}</div>
         ${!isDone && q.target > 1 ? `
-          <div class="xp-bar-bg mt-1" style="height:4px">
-            <div class="xp-bar-fill" style="width:${pct}%;background:#58a6ff;height:4px"></div>
+          <div class="xp-bar-bg" style="margin-top:5px;height:3px">
+            <div class="xp-bar-fill" style="width:${pct}%;background:var(--blue);height:3px"></div>
           </div>` : ''}
       </div>
-      <span class="text-xs shrink-0 ${isDone?'text-gray-600':'text-yellow-400'} font-mono">+${q.xp_reward} XP</span>
+      <span style="font-size:11px;color:${isDone?'var(--text-3)':'var(--amber)'};font-family:'JetBrains Mono',monospace;flex-shrink:0">+${q.xp_reward}</span>
     </div>`;
   }).join('');
 }
@@ -893,26 +1175,25 @@ function renderQuests(quests) {
 function renderXPLog(log) {
   const el    = document.getElementById('h-xp-log');
   const empty = document.getElementById('h-xp-log-empty');
-  if(!log?.length) { el.innerHTML=''; empty.classList.remove('hidden'); return; }
-  empty.classList.add('hidden');
+  if(!log?.length) { el.innerHTML=''; empty.style.display=''; return; }
+  empty.style.display='none';
 
   const actionLabel = {
-    EVALUATE_JOB:'Evaluated job', APPLY_JOB:'Applied to job', GOT_REPLY:'Got a reply',
-    GOT_INTERVIEW:'Interview scheduled!', GOT_OFFER:'OFFER RECEIVED!', FOLLOW_UP:'Follow-up sent',
-    ADD_CONTACT:'Contact added', SCAN_JOBS:'Scanned for jobs', GENERATE_PACKAGE:'Generated application package',
-    SEND_OUTREACH:'Outreach sent', COMPLETE_QUEST:'Quest complete', ACHIEVEMENT:'Achievement unlocked',
-    STREAK_7:'7-day streak bonus', STREAK_30:'30-day streak bonus',
+    EVALUATE_JOB:'Evaluated job', APPLY_JOB:'Applied', GOT_REPLY:'Got a reply',
+    GOT_INTERVIEW:'Interview!', GOT_OFFER:'OFFER!', FOLLOW_UP:'Follow-up sent',
+    ADD_CONTACT:'Contact added', SCAN_JOBS:'Scanned for jobs', GENERATE_PACKAGE:'Generated package',
+    SEND_OUTREACH:'Outreach sent', COMPLETE_QUEST:'Quest complete', ACHIEVEMENT:'Achievement',
+    STREAK_7:'7-day streak!', STREAK_30:'30-day streak!!',
   };
 
   el.innerHTML = log.map(e => {
     const label = actionLabel[e.action] || e.action;
-    const isSpecial = e.xp >= 100;
-    const color = e.xp >= 500 ? 'text-yellow-400' : e.xp >= 100 ? 'text-green-400' : 'text-gray-500';
+    const color = e.xp >= 500 ? 'var(--amber)' : e.xp >= 100 ? 'var(--green)' : 'var(--text-3)';
     const time = new Date(e.earned_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
-    return `<div class="flex items-center gap-2 text-xs">
-      <span class="${color} font-mono font-bold w-14 text-right shrink-0">+${e.xp}</span>
-      <span class="${isSpecial?'text-gray-300':'text-gray-500'} flex-1">${esc(e.description||label)}</span>
-      <span class="text-gray-700 shrink-0">${time}</span>
+    return `<div style="display:flex;align-items:center;gap:8px">
+      <span style="color:${color};font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;width:40px;text-align:right;flex-shrink:0">+${e.xp}</span>
+      <span style="font-size:12px;color:${e.xp>=100?'var(--text-2)':'var(--text-3)'};flex:1">${esc(e.description||label)}</span>
+      <span style="font-size:11px;color:var(--text-3);flex-shrink:0">${time}</span>
     </div>`;
   }).join('');
 }
@@ -922,10 +1203,8 @@ function renderAchievements(all, unlocked) {
   if(!all?.length) { el.innerHTML=''; return; }
 
   const unlockedKeys = new Set((unlocked||[]).map(a=>a.key));
-  const count = unlockedKeys.size;
-  document.getElementById('h-ach-count').textContent = `${count} / ${all.length} unlocked`;
+  document.getElementById('h-ach-count').textContent = `${unlockedKeys.size} / ${all.length}`;
 
-  // Sort: unlocked first
   const sorted = [...all].sort((a,b)=>{
     const aU = unlockedKeys.has(a.key), bU = unlockedKeys.has(b.key);
     if(aU && !bU) return -1; if(!aU && bU) return 1; return 0;
@@ -935,12 +1214,12 @@ function renderAchievements(all, unlocked) {
     const isUnlocked = unlockedKeys.has(a.key);
     const unlockedAt = isUnlocked ? unlocked.find(u=>u.key===a.key)?.unlocked_at : null;
     const dateStr = unlockedAt ? new Date(unlockedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short'}) : '';
-    return `<div class="card p-3 flex flex-col gap-1 text-center ${isUnlocked?'':'ach-locked'}">
-      <div class="text-2xl">${a.icon}</div>
-      <div class="text-xs font-semibold ${isUnlocked?'text-white':'text-gray-500'}">${esc(a.name)}</div>
-      <div class="text-xs text-gray-600">${esc(a.description)}</div>
-      <div class="text-xs font-mono ${isUnlocked?'text-yellow-400':'text-gray-700'}">+${a.xp} XP</div>
-      ${isUnlocked?`<div class="text-xs text-gray-700">${dateStr}</div>`:''}
+    return `<div style="background:var(--surface-2);border:1px solid ${isUnlocked?'var(--border-2)':'var(--border)'};border-radius:10px;padding:14px 12px;text-align:center;display:flex;flex-direction:column;gap:4px;${!isUnlocked?'opacity:.28;filter:grayscale(1)':''}">
+      <div style="font-size:24px">${a.icon}</div>
+      <div style="font-size:12px;font-weight:600;color:${isUnlocked?'var(--text)':'var(--text-3)'}">${esc(a.name)}</div>
+      <div style="font-size:11px;color:var(--text-3);line-height:1.3">${esc(a.description)}</div>
+      <div style="font-size:11px;font-family:'JetBrains Mono',monospace;color:${isUnlocked?'var(--amber)':'var(--text-3)'};margin-top:2px">+${a.xp} XP</div>
+      ${isUnlocked&&dateStr?`<div style="font-size:10px;color:var(--text-3)">${dateStr}</div>`:''}
     </div>`;
   }).join('');
 }
@@ -965,19 +1244,18 @@ function startQuestTimer() {
 // ── Toast notifications ────────────────────────────────────────────────
 
 function showToast(opts) {
-  // opts: { icon, title, subtitle, xp, type }
   const stack = document.getElementById('toast-stack');
   const t = document.createElement('div');
   t.className = `toast ${opts.type||''}`;
   t.innerHTML = `
-    <div class="flex items-start gap-3">
-      <span class="text-2xl shrink-0">${opts.icon||'⚡'}</span>
-      <div class="flex-1 min-w-0">
-        <div class="font-bold text-white text-sm">${esc(opts.title)}</div>
-        ${opts.subtitle?`<div class="text-xs text-gray-400 mt-0.5">${esc(opts.subtitle)}</div>`:''}
-        ${opts.xp?`<div class="text-xs text-yellow-400 font-mono mt-1">+${opts.xp} XP</div>`:''}
+    <div style="display:flex;align-items:flex-start;gap:10px">
+      <span style="font-size:20px;flex-shrink:0">${opts.icon||'⚡'}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;color:var(--text)">${esc(opts.title)}</div>
+        ${opts.subtitle?`<div style="font-size:12px;color:var(--text-3);margin-top:2px">${esc(opts.subtitle)}</div>`:''}
+        ${opts.xp?`<div style="font-size:11px;color:var(--amber);font-family:'JetBrains Mono',monospace;margin-top:4px">+${opts.xp} XP</div>`:''}
       </div>
-      <button onclick="dismissToast(this.parentElement.parentElement)" class="text-gray-600 hover:text-gray-300 text-lg leading-none">×</button>
+      <button onclick="dismissToast(this.parentElement.parentElement)" style="color:var(--text-3);cursor:pointer;background:none;border:none;font-size:16px;line-height:1;flex-shrink:0;padding:0">×</button>
     </div>`;
   stack.appendChild(t);
   setTimeout(()=>dismissToast(t), 5000);
@@ -986,7 +1264,7 @@ function showToast(opts) {
 function dismissToast(el) {
   if(!el||el.classList.contains('hiding')) return;
   el.classList.add('hiding');
-  setTimeout(()=>el.remove(), 300);
+  setTimeout(()=>el.remove(), 250);
 }
 
 function showRankUp(rank) {
@@ -1000,6 +1278,9 @@ function showQuestComplete(label, xp) {
 function showAchievement(icon, name, xp) {
   showToast({ icon, title:'Achievement Unlocked', subtitle:name, xp });
 }
+
+// Init badges visibility
+document.querySelectorAll('.nav-badge').forEach(b=>{b.style.display='none'});
 
 loadAll();
 </script>
