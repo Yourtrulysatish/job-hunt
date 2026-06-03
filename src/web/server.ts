@@ -8,26 +8,84 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { readFileSync, existsSync } from 'fs';
 import { spawn } from 'child_process';
+import { createHmac } from 'crypto';
 import yaml from 'js-yaml';
+import { initDb } from '../db/client-async.js';
 import {
   getApplications, getStats, getOverdueFollowups, getTopSkillGaps,
   getPipelineJobs, getAllContacts, getAllFollowups, getRecentGmailThreads,
   insertContact, completeFollowup, markPipelineJobReviewed,
-} from '../db/queries.js';
+} from '../db/queries-async.js';
 import {
   getHunterStats, getDailyQuests, getAllUnlockedAchievements,
-  getRecentXPLog, getRankInfo, getLevelFromXP, ensureDailyQuests, ACHIEVEMENTS,
-  getUnlockedAchievementKeys,
+  getRecentXPLog, ensureDailyQuests, getUnlockedAchievementKeys,
+} from '../utils/gamification-async.js';
+import {
+  getRankInfo, getLevelFromXP, ACHIEVEMENTS,
 } from '../utils/gamification.js';
 import { scoreJob } from '../utils/scorer.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..', '..');
 const PORT = Number(process.env.DASHBOARD_PORT ?? 3333);
+const PIN = process.env.DASHBOARD_PIN ?? '0408';
+const COOKIE_SECRET = process.env.COOKIE_SECRET ?? 'jh-secret-xK9p-2026';
+const COOKIE_NAME = 'jh_auth';
 
-const app = express();
-app.use(express.json());
-app.use(express.static(join(__dirname, 'public')));
+function makeToken() {
+  return createHmac('sha256', COOKIE_SECRET).update(PIN).digest('hex').slice(0, 32);
+}
+
+function parseCookies(req: express.Request): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const part of (req.headers.cookie ?? '').split(';')) {
+    const [k, ...v] = part.trim().split('=');
+    if (k) out[k.trim()] = v.join('=');
+  }
+  return out;
+}
+
+function requirePin(req: express.Request, res: express.Response, next: express.NextFunction) {
+  if (req.path === '/pin') return next();
+  if (parseCookies(req)[COOKIE_NAME] === makeToken()) return next();
+  res.redirect('/pin');
+}
+
+const PIN_PAGE = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Job Hunt — Enter PIN</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0f1117; color: #e2e8f0; font-family: system-ui, sans-serif;
+           display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    .card { background: #1a1d27; border: 1px solid #2d3148; border-radius: 12px;
+            padding: 2.5rem 3rem; width: 320px; text-align: center; }
+    h1 { font-size: 1.1rem; color: #94a3b8; margin-bottom: 1.8rem; letter-spacing: 0.05em; }
+    input { width: 100%; padding: 0.75rem 1rem; font-size: 1.5rem; letter-spacing: 0.4em;
+            text-align: center; background: #0f1117; border: 1px solid #2d3148;
+            border-radius: 8px; color: #e2e8f0; outline: none; }
+    input:focus { border-color: #6366f1; }
+    button { margin-top: 1.2rem; width: 100%; padding: 0.75rem; background: #6366f1;
+             border: none; border-radius: 8px; color: #fff; font-size: 1rem;
+             cursor: pointer; transition: background 0.15s; }
+    button:hover { background: #4f46e5; }
+    .error { margin-top: 1rem; color: #f87171; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>JOB HUNT</h1>
+    <form method="POST" action="/pin">
+      <input type="password" name="pin" inputmode="numeric" maxlength="8" autofocus placeholder="••••" />
+      <button type="submit">Unlock</button>
+      {{ERROR}}
+    </form>
+  </div>
+</body>
+</html>`;
 
 // ── Pipeline markdown parser (fallback when DB pipeline_jobs is empty) ──
 
@@ -60,37 +118,57 @@ function parsePipelineMd() {
   return jobs;
 }
 
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(requirePin);
+app.use(express.static(join(__dirname, 'public')));
+
+app.get('/pin', (_req, res) => {
+  res.setHeader('Content-Type', 'text/html');
+  res.send(PIN_PAGE.replace('{{ERROR}}', ''));
+});
+
+app.post('/pin', (req, res) => {
+  if (req.body.pin === PIN) {
+    const token = makeToken();
+    res.setHeader('Set-Cookie', `${COOKIE_NAME}=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=2592000`);
+    return res.redirect('/');
+  }
+  res.setHeader('Content-Type', 'text/html');
+  res.send(PIN_PAGE.replace('{{ERROR}}', '<p class="error">Incorrect PIN</p>'));
+});
+
 // ── API: Stats ────────────────────────────────────────────────────────
 
-app.get('/api/stats', (_req, res) => {
-  try { res.json(getStats()); }
+app.get('/api/stats', async (_req, res) => {
+  try { res.json(await getStats()); }
   catch { res.status(500).json({ error: 'DB not initialized.' }); }
 });
 
 // ── API: Applications ─────────────────────────────────────────────────
 
-app.get('/api/applications', (req, res) => {
+app.get('/api/applications', async (req, res) => {
   try {
     const { status, minScore, company, limit } = req.query;
-    res.json(getApplications({ status: status as string, minScore: minScore ? Number(minScore) : undefined, company: company as string, limit: limit ? Number(limit) : undefined }));
+    res.json(await getApplications({ status: status as string, minScore: minScore ? Number(minScore) : undefined, company: company as string, limit: limit ? Number(limit) : undefined }));
   } catch { res.status(500).json({ error: 'Failed.' }); }
 });
 
 // ── API: Pipeline (opportunity database) ─────────────────────────────
 
-app.get('/api/pipeline', (_req, res) => {
+app.get('/api/pipeline', async (_req, res) => {
   try {
-    // Try DB first, fall back to markdown
-    const dbJobs = getPipelineJobs({ limit: 200 });
+    const dbJobs = await getPipelineJobs({ limit: 200 });
     if (dbJobs.length > 0) return res.json(dbJobs.map(j => ({ ...j, checked: j.status !== 'new', fit_reasons: [], remote: j.remote === 1 })));
     res.json(parsePipelineMd());
   } catch { res.json(parsePipelineMd()); }
 });
 
-app.patch('/api/pipeline/:url/status', (req, res) => {
+app.patch('/api/pipeline/:url/status', async (req, res) => {
   try {
     const { status } = req.body as { status: 'reviewed' | 'applied' | 'skipped' };
-    markPipelineJobReviewed(decodeURIComponent(req.params.url), status);
+    await markPipelineJobReviewed(decodeURIComponent(req.params.url), status);
     res.json({ ok: true });
   } catch { res.status(500).json({ error: 'Failed.' }); }
 });
@@ -104,46 +182,44 @@ app.get('/api/recommendations', (_req, res) => {
 
 // ── API: Follow-ups ────────────────────────────────────────────────────
 
-app.get('/api/followups', (_req, res) => {
-  try { res.json(getAllFollowups()); }
+app.get('/api/followups', async (_req, res) => {
+  try { res.json(await getAllFollowups()); }
   catch { res.status(500).json({ error: 'Failed.' }); }
 });
 
-app.post('/api/followups/:id/complete', (req, res) => {
-  try { completeFollowup(Number(req.params.id)); res.json({ ok: true }); }
+app.post('/api/followups/:id/complete', async (req, res) => {
+  try { await completeFollowup(Number(req.params.id)); res.json({ ok: true }); }
   catch { res.status(500).json({ error: 'Failed.' }); }
 });
 
 // ── API: Contacts ──────────────────────────────────────────────────────
 
-app.get('/api/contacts', (_req, res) => {
-  try { res.json(getAllContacts()); }
+app.get('/api/contacts', async (_req, res) => {
+  try { res.json(await getAllContacts()); }
   catch { res.status(500).json({ error: 'Failed.' }); }
 });
 
-app.post('/api/contacts', (req, res) => {
+app.post('/api/contacts', async (req, res) => {
   try {
     const body = req.body as { company: string; name: string; title?: string; linkedin_url?: string; email?: string; notes?: string };
-    const id = insertContact({ company: body.company, name: body.name, title: body.title ?? null, linkedin_url: body.linkedin_url ?? null, email: body.email ?? null, connection: 'none', referral: 0, outreach_sent: 0, outreach_date: null, response: null, notes: body.notes ?? null, application_id: null });
+    const id = await insertContact({ company: body.company, name: body.name, title: body.title ?? null, linkedin_url: body.linkedin_url ?? null, email: body.email ?? null, connection: 'none', referral: 0, outreach_sent: 0, outreach_date: null, response: null, notes: body.notes ?? null, application_id: null });
     res.json({ id });
   } catch { res.status(500).json({ error: 'Failed.' }); }
 });
 
 // ── API: Skills gap ────────────────────────────────────────────────────
 
-app.get('/api/skills-gap', (_req, res) => {
-  try { res.json(getTopSkillGaps(15)); }
+app.get('/api/skills-gap', async (_req, res) => {
+  try { res.json(await getTopSkillGaps(15)); }
   catch { res.status(500).json({ error: 'Failed.' }); }
 });
 
 // ── API: Gmail ────────────────────────────────────────────────────────
 
-app.get('/api/gmail', (_req, res) => {
-  try { res.json(getRecentGmailThreads(30)); }
+app.get('/api/gmail', async (_req, res) => {
+  try { res.json(await getRecentGmailThreads(30)); }
   catch { res.status(500).json({ error: 'Failed.' }); }
 });
-
-// ── API: Profile ──────────────────────────────────────────────────────
 
 // ── API: Scan trigger ─────────────────────────────────────────────────
 
@@ -211,16 +287,16 @@ app.post('/api/linkedin', (_req, res) => {
 
 // ── API: Hunter / Gamification ────────────────────────────────────────
 
-app.get('/api/hunter', (_req, res) => {
+app.get('/api/hunter', async (_req, res) => {
   try {
-    ensureDailyQuests();
-    const stats        = getHunterStats();
-    const quests       = getDailyQuests();
-    const achievements = getAllUnlockedAchievements();
-    const xpLog        = getRecentXPLog(30);
+    await ensureDailyQuests();
+    const stats        = await getHunterStats();
+    const quests       = await getDailyQuests();
+    const achievements = await getAllUnlockedAchievements();
+    const xpLog        = await getRecentXPLog(30);
     const rankInfo     = getRankInfo(stats.total_xp);
     const level        = getLevelFromXP(stats.total_xp);
-    const unlocked     = getUnlockedAchievementKeys();
+    const unlocked     = await getUnlockedAchievementKeys();
     const allAch       = ACHIEVEMENTS.map(a => ({ ...a, unlocked: unlocked.has(a.key), check: undefined }));
     res.json({ stats, quests, achievements, xpLog, rankInfo, level, allAchievements: allAch });
   } catch (e) { res.status(500).json({ error: String(e) }); }
@@ -248,4 +324,8 @@ app.get('/api/report/:path(*)', (req, res) => {
 
 app.get('*', (_req, res) => res.sendFile(join(__dirname, 'public', 'index.html')));
 
-app.listen(PORT, () => console.log(`\n  job-hunt dashboard  →  http://localhost:${PORT}\n`));
+// ── Start ─────────────────────────────────────────────────────────────
+
+initDb()
+  .then(() => app.listen(PORT, () => console.log(`\n  job-hunt dashboard  →  http://localhost:${PORT}\n`)))
+  .catch(err => { console.error('DB init failed:', err); process.exit(1); });

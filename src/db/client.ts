@@ -6,14 +6,15 @@ import { SCHEMA } from './schema.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..', '..');
-const DB_PATH = join(ROOT, 'data', 'job-hunt.db');
+const DATA_DIR = process.env.DATA_DIR ?? join(ROOT, 'data');
+const DB_PATH = join(DATA_DIR, 'job-hunt.db');
 
 let _db: Database.Database | null = null;
 
 export function getDb(): Database.Database {
   if (_db) return _db;
 
-  mkdirSync(join(ROOT, 'data'), { recursive: true });
+  mkdirSync(DATA_DIR, { recursive: true });
   _db = new Database(DB_PATH);
   _db.exec(SCHEMA);
   return _db;
