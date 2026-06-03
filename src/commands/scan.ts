@@ -24,7 +24,8 @@ import { fileURLToPath } from 'url';
 import yaml from 'js-yaml';
 import chalk from 'chalk';
 import ora from 'ora';
-import { hasSeenUrl, hasSeenInApplications, recordScan } from '../db/queries.js';
+import { hasSeenUrl, hasSeenInApplications, recordScan, upsertPipelineJob } from '../db/queries.js';
+import { scoreJob } from '../utils/scorer.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..', '..');
@@ -340,7 +341,7 @@ function ensurePipelineMd() {
 }
 
 function portalColor(portal: string): string {
-  const map: Record<string, string> = {
+  const map: Record<string, (s: string) => string> = {
     greenhouse: chalk.green, ashby: chalk.blue, lever: chalk.magenta,
     workday: chalk.yellow, smartrecruiters: chalk.cyan,
     remotive: chalk.greenBright, remoteok: chalk.blueBright,
@@ -445,6 +446,8 @@ async function main() {
       lines.push(`  Portal: ${portal}`);
       lines.push('');
       recordScan(l.company, l.role, l.url, portal);
+      const scored = scoreJob({ role: l.role, company: l.company, location: l.location, remote: l.remote, portal });
+      upsertPipelineJob({ company: l.company, role: l.role, url: l.url, portal, location: l.location, remote: l.remote, salary: l.salary, fit_score: scored.score, fit_label: scored.label });
     }
   }
 

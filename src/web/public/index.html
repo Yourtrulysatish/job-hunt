@@ -359,7 +359,7 @@ function show(tab){
   if(tab==='followups') loadFollowups();
   if(tab==='contacts')  loadContacts();
   if(tab==='gmail')     loadGmail();
-  if(tab==='hunter')    loadHunter();
+  if(tab==='hunter')    { loadHunter(); startQuestTimer(); }
   if(tab==='profile')   loadProfile();
 }
 
@@ -953,6 +953,13 @@ function updateQuestTimer() {
   const diff = midnight - now;
   const h = Math.floor(diff/3600000), m = Math.floor((diff%3600000)/60000);
   el.textContent = `Resets in ${h}h ${m}m`;
+}
+
+let _questTimerInterval = null;
+function startQuestTimer() {
+  if(_questTimerInterval) clearInterval(_questTimerInterval);
+  updateQuestTimer();
+  _questTimerInterval = setInterval(updateQuestTimer, 60000);
 }
 
 // ── Toast notifications ────────────────────────────────────────────────

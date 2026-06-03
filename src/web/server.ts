@@ -160,7 +160,10 @@ app.get('/api/applications', async (req, res) => {
 app.get('/api/pipeline', async (_req, res) => {
   try {
     const dbJobs = await getPipelineJobs({ limit: 200 });
-    if (dbJobs.length > 0) return res.json(dbJobs.map(j => ({ ...j, checked: j.status !== 'new', fit_reasons: [], remote: j.remote === 1 })));
+    if (dbJobs.length > 0) return res.json(dbJobs.map(j => {
+      const scored = scoreJob({ role: j.role, company: j.company, location: j.location, portal: j.portal });
+      return { ...j, checked: j.status !== 'new', fit_reasons: scored.reasons, remote: j.remote === 1 };
+    }));
     res.json(parsePipelineMd());
   } catch { res.json(parsePipelineMd()); }
 });
